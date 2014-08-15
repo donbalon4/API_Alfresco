@@ -130,7 +130,7 @@ class WMAlfresco{
 		$sigue = true;
 		$c=0;
 		
-		while ($sigue or $c < count($obj->objectList)) {
+		while ($sigue and $c < count($obj->objectList)) {
 			if ($obj->objectList[$c]->properties["cmis:objectTypeId"] == "cmis:folder" and $sigue == true) {
 				if ($obj->objectList[$c]->properties["cmis:name"] = $nombre) {
 					$sigue = false;
