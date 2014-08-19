@@ -20,10 +20,10 @@ class WMAlfresco{
 	public $urlRepositorio;
 	public $usuario;
 	public $pass;
-	public $repostiorio;
+	public $repositorio;
 	public $carpetaPadre;
+
 	// Singleton
-	
 
 	function __construct()
 	{
@@ -65,12 +65,14 @@ class WMAlfresco{
 	/*
 	Setea carpeta sobre la cual trabajaremos en alfresco
 	*/
-	public function setCarpetaPorPath($carpeta){
-		$obj = $this->repositorio->getObjectByPath($carpeta);
+	public function setCarpetaPorRuta($carpeta,$opciones = array()){
+		$obj = $this->repositorio->getObjectByPath($carpeta,$opciones);
 		$propiedad = $obj->properties['cmis:baseTypeId'];
-		/*echo "<br>obj: ";
-		echo $propiedad;
-		echo "<br>";*/
+		/*
+		echo "<pre>obj: ";
+		print_r($obj);
+		echo "</pre>";
+		*/
 		if($propiedad != "cmis:folder"){
 			print "El objeto no es una carpeta";
 			exit (255);
@@ -81,12 +83,32 @@ class WMAlfresco{
 	}
 
 	/*
+	Setea carpeta (según id) sobre la cual trabajaremos en alfresco	
+	*/
+
+	public function setCarpetaPorId($id,$opciones = array()){
+		$obj = $this->repositorio->getObject($id,$opciones);
+		/*
+		echo "<pre>";
+		print_r($obj);
+		echo "</pre>";
+		*/
+		$propiedad = $obj->properties["cmis:baseTypeId"];
+		if ($propiedad != "cmis:folder") {
+			print "El objeto no es una carpeta";
+			exit (255);
+		}
+		else{
+			$this->carpetaPadre = $obj;
+		}
+	}
+
+	/*
 	Crea carpeta
 	crea carpeta en la carpeta que ha sido SETEADA
 	$nombre = nombre que tendrá la carpeta a crear.
 	*/
 	public function crearCarpeta($nombre,$propiedades = array(),$opciones = array()){
-
 		//$obj = $this->repositorio->getObjectByPath("/".$this->carpetaPadre->properties["cmis:name"]."/".$nombre);
 		$existe = $this->existeCarpeta($nombre);
 		/*]echo "<pre>existe:";
@@ -108,31 +130,95 @@ class WMAlfresco{
 	$nombre = nombre del archivo a crear.
 	*/
 	public function crearArchivo($nombre,$propiedades = array(),$contenido = null,$tipo_contenido = "application/octet-stream",$opciones = array()){
-
-		$obj = $this->repositorio->getChildren($this->carpetaPadre->id);
-		echo "<br>obj: ";
-		var_dump($obj);
-		echo "<br>";
-		if (!is_null($obj->id)) {
+		$existe = $this->existeArchivo($nombre);
+		if ($existe) {
 			print "Error:->El archivo ".$nombre." ya existe";
 			exit (255);
 		}
 		else{
-			//return $this->repositorio->createDocument($this->carpetaPadre->id,$nombre,$propiedades,$contenido,$tipo_contenido,$opciones);
+			return $this->repositorio->createDocument($this->carpetaPadre->id,$nombre,$propiedades,$contenido,$tipo_contenido,$opciones);
 		}
 	}
 
 	/*
+	Mueve un objeto con id $id, 
+	desde: la carpeta con id = $id_origen 
+	hacia: la carpeta con id = $id_destino
+	*/
+
+	public function moverObjeto($id,$id_destino,$id_origen,$opciones = array()){
+		return $this->repositorio->moveObject($id,$id_destino,$id_origen,$opciones);
+	}
+
+	/*
+	suber archivos	
+	*/
+
+	public function subirArchivo(){
+		//setcontentstream es la clave
+	}
+
+	/*
+	Obtiene los hijos de la carpeta SETEADA
+	*/
+
+	public function getHijosCarpeta(){
+		return $this->repositorio->getChildren($this->carpetaPadre->id);
+	}
+
+	/*
+	Obtiene los hijos de una carpeta según Id
+	*/
+
+	public function getHijosId($id){
+		return $this->repositorio->getChildren($id);
+	}
+
+	/*
+	Borra objeto según su Id
+	*/
+
+	public function getObjetoPorId($id){
+		return $this->repositorio->getObject($id);
+	}
+
+	public function borrar($id,$opciones = array()){
+		return $this->repositorio->deleteObject($id,$opciones);
+	}
+
+	/*
+	*
+	*	USO INTERNO
+	*
 		Verifica si la carpeta existe en la carpeta padre antes de crearla
 	*/
 	private function existeCarpeta($nombre){
 		$obj = $this->repositorio->getChildren($this->carpetaPadre->id);
 		$sigue = true;
 		$c=0;
-		
 		while ($sigue and $c < count($obj->objectList)) {
-			if ($obj->objectList[$c]->properties["cmis:objectTypeId"] == "cmis:folder" and $sigue == true) {
-				if ($obj->objectList[$c]->properties["cmis:name"] = $nombre) {
+			if ($obj->objectList[$c]->properties["cmis:objectTypeId"] == "cmis:folder") {
+				if ($obj->objectList[$c]->properties["cmis:name"] == $nombre) {
+					$sigue = false;
+				}
+			}
+			$c=$c+1;
+		}
+		if(!$sigue){
+			return true;	
+		} 
+		else{
+			return false;
+		}
+	}
+
+	private function existeArchivo($nombre){
+		$obj = $this->repositorio->getChildren($this->carpetaPadre->id);
+		$sigue = true;
+		$c=0;
+		while ($sigue and $c < count($obj->objectList)) {
+			if ($obj->objectList[$c]->properties["cmis:objectTypeId"] == "cmis:document") {
+				if ($obj->objectList[$c]->properties["cmis:name"] == $nombre) {
 					$sigue = false;
 				}
 			}
@@ -146,4 +232,4 @@ class WMAlfresco{
 		}
 	}
 }
- ?>
+?>

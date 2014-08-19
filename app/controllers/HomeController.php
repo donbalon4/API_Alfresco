@@ -22,47 +22,39 @@ class HomeController extends BaseController {
 		$Usuario = "admin";
 		$Pass = "workmate2014";
 		$carpeta = "/Compartido";
+		$idCarpeta = "workspace://SpacesStore/99047dab-4c88-4e70-a548-b3d2139ffc65";
 		$nuevaCarpeta = "API";
 		$archivo = "api.txt";
+		$idArchivo = "workspace://SpacesStore/aac5b6e8-d2ea-4471-8f7c-067c11b11fe7;1.0";
+		$idCarpetaNueva = "workspace://SpacesStore/31f76136-867d-493e-80f6-c95cb8ef2e79";
 		$contenido = "probando la nueva api";
+
 		//$conexion = new CMISService($urlRepositorio,$Usuario,$Pass);
 		//$objCarpeta = $conexion->getObjectByPath($carpeta);
 		$conexion = WMAlfresco::getInstance();
 		$conexion->conectar($urlRepositorio,$Usuario,$Pass);
 		$conexion->checkRespuesta();
 
-		$conexion->setCarpetaPorPath($carpeta);
+		$conexion->setCarpetaPorRuta($carpeta);
 		$conexion->checkRespuesta();
 
-		$conexion->crearCarpeta($nuevaCarpeta);
+		//$conexion->crearCarpeta($nuevaCarpeta);
+		//$conexion->checkRespuesta();
+
+		//$conexion->crearArchivo($archivo,array(),$contenido);
+		//$conexion->checkRespuesta();
+
+		$conexion->setCarpetaPorId($idCarpeta);
 		$conexion->checkRespuesta();
 
-		$objs = $conexion->crearArchivo($archivo,array(),$contenido);
-		$conexion->checkRespuesta();
+		$objs = $conexion->moverObjeto($idArchivo,$idCarpetaNueva,$idCarpeta);
+		//$objs = $conexion->getObjetoPorId($idArchivo);
+
+		//$objs = $conexion->carpetaPadre;
 
 		$checkeado = false;
 		$error = null;
-		/*
-		if ($conexion->getLastRequest()->code <= 299) {
-			$checkeado = true;
-		}
-		if ($checkeado) {
-			if ($objCarpeta->properties['cmis:baseTypeId'] != "cmis:folder"){
-			    $error = "No es una carpeta!<br>";
-			}
-			else{
-				$nueva_carpeta = $conexion->createFolder($objCarpeta->id, $nuevaCarpeta);
-				$obj_doc = $conexion->createDocument($nueva_carpeta->id, "archivodetexto.txt", array (), "soy un nuevo documento", "text/plain");
-				$objs = $conexion->getChildren($nueva_carpeta->id);			
-			}
-		}
-		else{
-			$error="Error en la petición";
-		}*/
-		//check_response($objCarpeta);
-		//$ticket = $repositorio->authenticate($Usuario,$Pass);
-		//$ticket = $conexion->connectRepository($urlRepositorio,$Usuario,$Pass);
-		//$ticket = curl_init("http://192.168.1.139:8080/alfresco/api/AuthenticationService?wsdl");
+
 		$ticket = ":B";
 		return View::make('hola', array(
 			'url' => $urlRepositorio,
