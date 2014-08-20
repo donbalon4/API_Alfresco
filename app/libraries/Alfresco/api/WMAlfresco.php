@@ -39,12 +39,14 @@ class WMAlfresco{
 	}
 
 
-	 public function __clone(){
+	public function __clone(){
         trigger_error('Clone no se permite.', E_USER_ERROR);
     }
 
 	/*
-		funcion para conectar con alfresco
+		Función para conectar con alfresco.
+		@ejemplo
+			$url = "http://127.0.0.1:8080/alfresco/cmisatom";
 	*/
 
 	public function conectar($url,$usuario,$pass){
@@ -52,7 +54,6 @@ class WMAlfresco{
 		$this->usuario = $usuario;
 		$this->pass = $pass;
 		$this->repositorio = new CMISService($url,$usuario,$pass);
-		//return $this->repositorio;
 	}
 
 	public function checkRespuesta(){
@@ -64,7 +65,10 @@ class WMAlfresco{
 
 	/*
 	Setea carpeta sobre la cual trabajaremos en alfresco
+	@Ej:
+		$carpeta = "/carpeta";
 	*/
+
 	public function setCarpetaPorRuta($carpeta,$opciones = array()){
 		$obj = $this->repositorio->getObjectByPath($carpeta,$opciones);
 		$propiedad = $obj->properties['cmis:baseTypeId'];
@@ -83,16 +87,13 @@ class WMAlfresco{
 	}
 
 	/*
-	Setea carpeta (según id) sobre la cual trabajaremos en alfresco	
+	Setea carpeta (según id) sobre la cual trabajaremos en alfresco
+	@Ej:
+		$id = "workspace://SpacesStore/xxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx"	
 	*/
 
 	public function setCarpetaPorId($id,$opciones = array()){
 		$obj = $this->repositorio->getObject($id,$opciones);
-		/*
-		echo "<pre>";
-		print_r($obj);
-		echo "</pre>";
-		*/
 		$propiedad = $obj->properties["cmis:baseTypeId"];
 		if ($propiedad != "cmis:folder") {
 			print "El objeto no es una carpeta";
@@ -107,13 +108,12 @@ class WMAlfresco{
 	Crea carpeta
 	crea carpeta en la carpeta que ha sido SETEADA
 	$nombre = nombre que tendrá la carpeta a crear.
+	@Ej:
+		$nombre = "carpeta";
 	*/
+
 	public function crearCarpeta($nombre,$propiedades = array(),$opciones = array()){
-		//$obj = $this->repositorio->getObjectByPath("/".$this->carpetaPadre->properties["cmis:name"]."/".$nombre);
 		$existe = $this->existeCarpeta($nombre);
-		/*]echo "<pre>existe:";
-		print_r($existe);
-		echo "</pre>";*/
 		if ($existe){
 			print "Error:->La carpeta ".$nombre." ya existe";
 			exit (255);
@@ -128,7 +128,11 @@ class WMAlfresco{
 	crea archivo en la carpeta que ha sido SETEADA
 	($this->carpetaPadre)
 	$nombre = nombre del archivo a crear.
+	@Ej:
+		$nombre = "archivo.txt";
+		$contenido = "hola este es un archivo";
 	*/
+
 	public function crearArchivo($nombre,$propiedades = array(),$contenido = null,$tipo_contenido = "application/octet-stream",$opciones = array()){
 		$existe = $this->existeArchivo($nombre);
 		if ($existe) {
@@ -141,21 +145,36 @@ class WMAlfresco{
 	}
 
 	/*
-	Mueve un objeto con id $id, 
-	desde: la carpeta con id = $id_origen 
-	hacia: la carpeta con id = $id_destino
+	sube archivos	
+	@Ej:
+		$archivo = "c:/temp/hola.pdf";
 	*/
-
-	public function moverObjeto($id,$id_destino,$id_origen,$opciones = array()){
-		return $this->repositorio->moveObject($id,$id_destino,$id_origen,$opciones);
+	
+	public function subirArchivo($archivo){
+		//deben estar en base 64
+		$nombre = basename($archivo);
+		$archivoAbierto = fopen($archivo, "r");
+		$contenido = fread($archivoAbierto, filesize($archivo));
+		//activar extension php fileinfo
+		$tipo_contenido = mime_content_type($archivo);
+		$nuevoArchivo = $this->crearArchivo($nombre,array(),$contenido,$tipo_contenido,array());
+		if ($nuevoArchivo) {
+			return $nuevoArchivo;
+		}
+			
 	}
 
 	/*
-	suber archivos	
+	Descarga de archivos
 	*/
 
-	public function subirArchivo(){
-		//setcontentstream es la clave
+	public function descargarArchivo($id){
+		$archivo = $this->getObjetoPorId($id);
+		$nombre = $archivo->properties["cmis:name"];
+		$mime = $archivo->properties["cmis:contentStreamMimeType"];
+		$contenido = $this->repositorio->getContentStream($id);
+		$archTemporal = fopen($nombre, "c+");
+		fwrite($archTemporal, $contenido);
 	}
 
 	/*
@@ -175,12 +194,16 @@ class WMAlfresco{
 	}
 
 	/*
-	Borra objeto según su Id
+	Obtiene objeto por su id
 	*/
 
 	public function getObjetoPorId($id){
 		return $this->repositorio->getObject($id);
 	}
+
+	/*
+	Borra objeto según su Id
+	*/
 
 	public function borrar($id,$opciones = array()){
 		return $this->repositorio->deleteObject($id,$opciones);
@@ -192,8 +215,11 @@ class WMAlfresco{
 	*
 		Verifica si la carpeta existe en la carpeta padre antes de crearla
 	*/
+
 	private function existeCarpeta($nombre){
 		$obj = $this->repositorio->getChildren($this->carpetaPadre->id);
+		$nombre = str_replace("(", "", $nombre);
+		$nombre = str_replace(")", "", $nombre);
 		$sigue = true;
 		$c=0;
 		while ($sigue and $c < count($obj->objectList)) {
@@ -214,6 +240,8 @@ class WMAlfresco{
 
 	private function existeArchivo($nombre){
 		$obj = $this->repositorio->getChildren($this->carpetaPadre->id);
+		$nombre = str_replace("(", "", $nombre);
+		$nombre = str_replace(")", "", $nombre);
 		$sigue = true;
 		$c=0;
 		while ($sigue and $c < count($obj->objectList)) {

@@ -24,11 +24,18 @@ class HomeController extends BaseController {
 		$carpeta = "/Compartido";
 		$idCarpeta = "workspace://SpacesStore/99047dab-4c88-4e70-a548-b3d2139ffc65";
 		$nuevaCarpeta = "API";
-		$archivo = "api.txt";
+		//$archivo = "a.txt";
 		$idArchivo = "workspace://SpacesStore/aac5b6e8-d2ea-4471-8f7c-067c11b11fe7;1.0";
 		$idCarpetaNueva = "workspace://SpacesStore/31f76136-867d-493e-80f6-c95cb8ef2e79";
 		$contenido = "probando la nueva api";
 
+		$archivo = "C:\Users\danielojeda\Documents\Daniel Ojeda\Control Laboral\Planificacion Global V2.1(2007).pdf";
+		/*
+		$nombreArchivo = basename($archivo);
+		$archivoA = fopen("C:\Users\danielojeda\Documents\Daniel Ojeda\Control Laboral\Planificacion Global V2.1(2007).pdf", "r");
+		$streamArchivo = fread($archivoA, filesize($archivo));
+		//activar extension php fileinfo
+		$tipoArchivo = mime_content_type($archivo);*/
 		//$conexion = new CMISService($urlRepositorio,$Usuario,$Pass);
 		//$objCarpeta = $conexion->getObjectByPath($carpeta);
 		$conexion = WMAlfresco::getInstance();
@@ -41,13 +48,16 @@ class HomeController extends BaseController {
 		//$conexion->crearCarpeta($nuevaCarpeta);
 		//$conexion->checkRespuesta();
 
-		//$conexion->crearArchivo($archivo,array(),$contenido);
-		//$conexion->checkRespuesta();
-
+		/*$conexion->crearArchivo($archivo,array(),$contenido);
+		$conexion->checkRespuesta();
+		*/
 		$conexion->setCarpetaPorId($idCarpeta);
 		$conexion->checkRespuesta();
-
-		$objs = $conexion->moverObjeto($idArchivo,$idCarpetaNueva,$idCarpeta);
+		
+		$objs = $conexion->subirArchivo($archivo);
+		//$objs = $archivo;
+		//$objs = fread($archivoA, filesize($archivo));
+		//$objs = $conexion->moverObjeto($idArchivo,$idCarpetaNueva,$idCarpeta);
 		//$objs = $conexion->getObjetoPorId($idArchivo);
 
 		//$objs = $conexion->carpetaPadre;
