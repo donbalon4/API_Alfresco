@@ -54,7 +54,11 @@ class HomeController extends BaseController {
 		$conexion->setCarpetaPorId($idCarpeta);
 		$conexion->checkRespuesta();
 		
-		$objs = $conexion->subirArchivo($archivo);
+		$objs = $conexion->descargarCarpeta($idCarpeta);
+
+		//$objs = $conexion->getHijosId($idCarpeta);
+		//$objs = $conexion->descargarArchivo("workspace://SpacesStore/998a37ce-d9c9-45e7-bace-ca5354ca2379;1.0");
+		//$objs = $conexion->subirArchivo($archivo);
 		//$objs = $archivo;
 		//$objs = fread($archivoA, filesize($archivo));
 		//$objs = $conexion->moverObjeto($idArchivo,$idCarpetaNueva,$idCarpeta);

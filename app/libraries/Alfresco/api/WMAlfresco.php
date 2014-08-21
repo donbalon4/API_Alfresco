@@ -1,14 +1,18 @@
 <?php 
 /*
- *		@Fecha: 13 Agosto 2014
- *		@Ult. Actualizacion: 13 Agosto 2014
+ *		@Fecha: 21 Agosto 2014
+ *		@Ult. Actualizacion: 21 Agosto 2014
  * 		@Autor: Daniel Ojeda Sandoval
  *      @Email: danielojeda@workmate.cl
  * 		@Version: 1.0
  */
 
-/**
-* 
+/*
+* 		@ejemplo de uso:
+*			$conexion = WMAlfresco::getInstance();
+*			$conexion->conectar($urlRepositorio,$Usuario,$Pass);
+*			$conexion->checkRespuesta();
+*			$conexion->setCarpetaPorRuta($carpeta);
 */
 
 require_once ("../../phpclient/trunk/atom/cmis/cmis_repository_wrapper.php");
@@ -165,16 +169,89 @@ class WMAlfresco{
 	}
 
 	/*
-	Descarga de archivos
+	Descarga de archivos según su id
 	*/
 
 	public function descargarArchivo($id){
 		$archivo = $this->getObjetoPorId($id);
 		$nombre = $archivo->properties["cmis:name"];
 		$mime = $archivo->properties["cmis:contentStreamMimeType"];
+		$tamaño = $archivo->properties["cmis:contentStreamLength"];
 		$contenido = $this->repositorio->getContentStream($id);
-		$archTemporal = fopen($nombre, "c+");
+		$nombre = str_replace(" ", "_", $nombre);
+		$archTemporal = fopen($nombre, "wb");
 		fwrite($archTemporal, $contenido);
+		fclose($archTemporal);
+		$dominio = $_SERVER['SERVER_NAME'];
+		$path = getcwd()."/".$nombre;
+		header ("Cache-Control: must-revalidate, post-check=0, pre-check=0");
+		header('Content-Description: File Transfer');
+        header('Content-type: '.$mime);
+        header("Content-Disposition: attachment; filename=\"" . $nombre . "\"\n");
+        header('Content-Transfer-Encoding: Binary');
+        header('Expires: 0');
+        header('Pragma: public');
+        header('Content-Length: ' . filesize($nombre));
+        ob_clean();
+        flush();
+        readfile($path);
+        unlink($nombre);
+        exit();
+	}
+
+	/*
+	descarga carpeta comprimida sólo si no tiene subcarpetas.
+	*/
+
+	public function descargarCarpeta($id){
+		$tieneCarpetas = $this->tieneCarpetas($id);
+		//si no tiene carpetas
+		if (!$tieneCarpetas) {
+			$obj = $this->getObjetoPorId($id);
+			$nombreCarpeta = $obj->properties["cmis:name"];
+			$ruta = getcwd()."/".$nombreCarpeta;
+			$creaCarpeta = mkdir($ruta);
+			if ($creaCarpeta) {
+				$hijos = $this->getHijosId($id);
+				$archivos = array();
+				for ($i=0; $i < count($hijos->objectList); $i++) { 
+						$nombreArchivo = $hijos->objectList[$i]->properties["cmis:name"];
+						$tamaño = $hijos->objectList[$i]->properties["cmis:contentStreamLength"];
+						$contenido = $this->repositorio->getContentStream($hijos->objectList[$i]->id);
+						$archTemporal = fopen($ruta."/".$nombreArchivo, "wb");
+						fwrite($archTemporal, $contenido);
+						fclose($archTemporal);
+						$archivos[$i] = $ruta."/".$nombreArchivo;
+					}
+				$zip = new ZipArchive();
+				$nombreZip = $nombreCarpeta.".zip";
+				if ($zip->open($ruta."/".$nombreZip, ZipArchive::CREATE)!==TRUE) {
+				    exit("no se puede abrir <$nombreZip>\n");
+				}
+				for ($i=0; $i < count($archivos) ; $i++) { 
+					$zip->addFile($archivos[$i],basename($archivos[$i]));
+				}				
+				$zip->close();
+				$rutaZip = $ruta."/".$nombreZip;
+				header ("Cache-Control: must-revalidate, post-check=0, pre-check=0");
+				header('Content-Description: File Transfer');
+		        header('Content-type: application/zip');
+		        header("Content-Disposition: attachment; filename=\"" . $nombreZip . "\"\n");
+		        header('Content-Transfer-Encoding: Binary');
+		        header('Expires: 0');
+		        header('Pragma: public');
+		        header('Content-Length: ' . filesize($rutaZip));
+		        ob_clean();
+		        flush();
+		        readfile($rutaZip);
+		        $this->eliminarDir($ruta);
+		        exit();
+			}
+		}
+		else{
+			print("no se puede descargar la carpeta");
+			exit(255);
+		}
 	}
 
 	/*
@@ -258,6 +335,38 @@ class WMAlfresco{
 		else{
 			return false;
 		}
+	}
+
+	private function tieneCarpetas($id){
+		$obj = $this->repositorio->getChildren($id);
+		$sigue = true;
+		$c=0;
+		while ($sigue and $c < count($obj->objectList)) {
+			if ($obj->objectList[$c]->properties["cmis:objectTypeId"] == "cmis:folder") {
+				$sigue = false;
+			}
+			$c = $c+1;
+		}
+		if (!$sigue) {
+			return true;
+		}
+		else{
+			return false;
+		}
+	}
+
+	private function eliminarDir($dir){
+	    $current_dir = opendir($dir);
+	    while($entryname = readdir($current_dir)){
+	        if(is_dir("$dir/$entryname") and ($entryname != "." and $entryname!="..")){
+	            deldir("${dir}/${entryname}");  
+	        }
+	        elseif($entryname != "." and $entryname!=".."){
+	            unlink("${dir}/${entryname}");
+	        }
+	    }
+	    closedir($current_dir);
+	    rmdir(${'dir'});
 	}
 }
 ?>
