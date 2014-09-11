@@ -19,8 +19,10 @@ class HomeController extends BaseController {
 	public function showWelcome()
 	{	
 		$urlRepositorio = "http://192.168.1.139:8080/alfresco/cmisatom";
-		$Usuario = "admin";
-		$Pass = "workmate2014";
+		//$Usuario = "admin";
+		$Usuario = "Acreditacion_linea";
+		//$Pass = "workmate2014";
+		$Pass = "acreditacion2014";
 		$carpeta = "/Compartido";
 		$idCarpeta = "workspace://SpacesStore/99047dab-4c88-4e70-a548-b3d2139ffc65";
 		$nuevaCarpeta = "API";
@@ -54,7 +56,8 @@ class HomeController extends BaseController {
 		$conexion->setCarpetaPorId($idCarpeta);
 		$conexion->checkRespuesta();
 		
-		$objs = $conexion->descargarCarpeta($idCarpeta);
+		$objs = $conexion->verArchivo("workspace://SpacesStore/998a37ce-d9c9-45e7-bace-ca5354ca2379;1.0");
+		//$objs = $conexion->descargarCarpeta($idCarpeta);
 
 		//$objs = $conexion->getHijosId($idCarpeta);
 		//$objs = $conexion->descargarArchivo("workspace://SpacesStore/998a37ce-d9c9-45e7-bace-ca5354ca2379;1.0");

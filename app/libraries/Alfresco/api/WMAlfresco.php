@@ -1,7 +1,7 @@
 <?php 
 /*
  *		@Fecha: 21 Agosto 2014
- *		@Ult. Actualizacion: 21 Agosto 2014
+ *		@Ult. Actualizacion: 11 Septiembre 2014->funcion para visualizar archivos
  * 		@Autor: Daniel Ojeda Sandoval
  *      @Email: danielojeda@workmate.cl
  * 		@Version: 1.0
@@ -166,6 +166,33 @@ class WMAlfresco{
 			return $nuevoArchivo;
 		}
 			
+	}
+	/*
+	Descarga un archivo a un directorio local y temporal para que pueda ser visto en linea.
+	*/
+	public function verArchivo($id){
+		$archivo = $this->getObjetoPorId($id);
+		$nombre = $archivo->properties["cmis:name"];
+		$mime = $archivo->properties["cmis:contentStreamMimeType"];
+		$tamaño = $archivo->properties["cmis:contentStreamLength"];
+		$contenido = $this->repositorio->getContentStream($id);
+		$nombre = str_replace(" ", "_", $nombre);
+		$archTemporal = fopen($nombre, "wb");
+		fwrite($archTemporal, $contenido);
+		fclose($archTemporal);
+		$dominio = $_SERVER['SERVER_NAME'];
+		$path = getcwd()."/".$nombre;
+		header ("Cache-Control: must-revalidate, post-check=0, pre-check=0");
+        header('Content-type: '.$mime);
+        header('Content-Transfer-Encoding: Binary');
+        header('Expires: 0');
+        header('Pragma: public');
+        header('Content-Length: ' . filesize($nombre));
+        ob_clean();
+        flush();
+        readfile($path);
+        unlink($nombre);
+        exit();
 	}
 
 	/*
@@ -368,5 +395,6 @@ class WMAlfresco{
 	    closedir($current_dir);
 	    rmdir(${'dir'});
 	}
+
 }
 ?>
