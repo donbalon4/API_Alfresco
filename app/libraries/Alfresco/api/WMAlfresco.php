@@ -1,10 +1,10 @@
 <?php 
 /*
  *		@Fecha: 21 Agosto 2014
- *		@Ult. Actualizacion: 11 Septiembre 2014->funcion para visualizar archivos
+ *		@Ult. Actualizacion: 23 Septiembre 2014->función para querys
  * 		@Autor: Daniel Ojeda Sandoval
  *      @Email: danielojeda@workmate.cl
- * 		@Version: 1.0
+ * 		@Version: 1.2
  */
 
 /*
@@ -313,11 +313,15 @@ class WMAlfresco{
 		return $this->repositorio->deleteObject($id,$opciones);
 	}
 
+	public function query($consulta){
+		return $this->repositorio->query($consulta);
+	}
+
 	/*
 	*
 	*	USO INTERNO
 	*
-		Verifica si la carpeta existe en la carpeta padre antes de crearla
+	*	Verifica si la carpeta existe en la carpeta padre antes de crearla
 	*/
 
 	private function existeCarpeta($nombre){

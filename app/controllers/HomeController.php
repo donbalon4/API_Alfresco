@@ -56,7 +56,8 @@ class HomeController extends BaseController {
 		$conexion->setCarpetaPorId($idCarpeta);
 		$conexion->checkRespuesta();
 		
-		$objs = $conexion->verArchivo("workspace://SpacesStore/998a37ce-d9c9-45e7-bace-ca5354ca2379;1.0");
+		$objs = $conexion->query("SELECT * FROM cmis:folder where cmis:name = '8949934'");
+		//$objs = $conexion->verArchivo("workspace://SpacesStore/998a37ce-d9c9-45e7-bace-ca5354ca2379;1.0");
 		//$objs = $conexion->descargarCarpeta($idCarpeta);
 
 		//$objs = $conexion->getHijosId($idCarpeta);
