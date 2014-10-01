@@ -18,7 +18,7 @@ class HomeController extends BaseController {
 	
 	public function showWelcome()
 	{	
-		$urlRepositorio = "http://192.168.1.139:8080/alfresco/cmisatom";
+		$urlRepositorio = "http://desarrollo.workmate.cl:8080/alfresco/cmisatom";
 		//$Usuario = "admin";
 		$Usuario = "Acreditacion_linea";
 		//$Pass = "workmate2014";
@@ -56,7 +56,15 @@ class HomeController extends BaseController {
 		$conexion->setCarpetaPorId($idCarpeta);
 		$conexion->checkRespuesta();
 		
-		$objs = $conexion->query("SELECT * FROM cmis:folder where cmis:name = '8949934'");
+		$objs = getcwd();
+		/*/$objs = $conexion->query("SELECT * FROM cmis:folder where cmis:name = '17359243'");
+		$objs = $objs->numItems;
+		if ($objs > 0) {
+			$objs = "Existe la carpeta";
+		}
+		else{
+			$objs = "No existe la carpeta";
+		}*/
 		//$objs = $conexion->verArchivo("workspace://SpacesStore/998a37ce-d9c9-45e7-bace-ca5354ca2379;1.0");
 		//$objs = $conexion->descargarCarpeta($idCarpeta);
 

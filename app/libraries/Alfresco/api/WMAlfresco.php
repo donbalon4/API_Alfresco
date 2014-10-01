@@ -15,8 +15,8 @@
 *			$conexion->setCarpetaPorRuta($carpeta);
 */
 
-require_once ("../../phpclient/trunk/atom/cmis/cmis_repository_wrapper.php");
-require_once ("../../phpclient/trunk/atom/cmis/cmis_service.php");
+require_once ("cmis_repository_wrapper.php");
+require_once ("cmis_service.php");
 
 class WMAlfresco{
 
