@@ -195,6 +195,38 @@ class WMAlfresco{
         exit();
 	}
 
+	/* Para linux
+	public function verArchivo($id){
+		$archivo = $this->getObjetoPorId($id);
+		$nombre = $archivo->properties["cmis:name"];
+		$mime ="";
+		if (substr($nombre,-3) == "pdf") {
+			$mime = "application/pdf";
+		}
+		else{
+			$mime = "octet-stream";
+		}
+		$tamaño = $archivo->properties["cmis:contentStreamLength"];
+		$contenido = $this->repositorio->getContentStream($id);
+		$nombre = str_replace(" ", "_", $nombre);
+		$archTemporal = fopen($nombre, "wb");
+		fwrite($archTemporal, $contenido);
+		fclose($archTemporal);
+		$dominio = $_SERVER['SERVER_NAME'];
+		$path = getcwd()."/".$nombre;
+		header ("Cache-Control: must-revalidate, post-check=0, pre-check=0");
+        header('Content-type: '.$mime);        
+        header('Content-Transfer-Encoding: Binary');
+        header('Expires: 0');
+        header('Pragma: public');
+        header('Content-Length: ' . filesize($nombre));
+        if (ob_get_contents()) ob_end_clean();
+        flush();
+        readfile($path);
+        unlink($nombre);
+        exit();
+	}*/
+
 	/*
 	Descarga de archivos según su id
 	*/
