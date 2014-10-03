@@ -259,6 +259,24 @@ class WMAlfresco{
 	}
 
 	/*
+		Descarga archivo segun id a una ruta temporal
+	*/
+	public function moverArchivo($id){
+		$archivo = $this->getObjetoPorId($id);
+		$nombre = $archivo->properties["cmis:name"];
+		$mime = $archivo->properties["cmis:contentStreamMimeType"];
+		$tamaño = $archivo->properties["cmis:contentStreamLength"];
+		$contenido = $this->repositorio->getContentStream($id);
+		$nombre = str_replace(" ", "_", $nombre);
+		$archTemporal = fopen($nombre, "wb");
+		fwrite($archTemporal, $contenido);
+		fclose($archTemporal);
+		print_r($archTemporal);
+		$dominio = $_SERVER['SERVER_NAME'];
+		$path = getcwd()."/".$nombre;
+		return $path;
+	}		
+	/*
 	descarga carpeta comprimida sólo si no tiene subcarpetas.
 	*/
 

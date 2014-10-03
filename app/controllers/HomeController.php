@@ -18,11 +18,15 @@ class HomeController extends BaseController {
 	
 	public function showWelcome()
 	{	
+		/*
 		$urlRepositorio = "http://desarrollo.workmate.cl:8080/alfresco/cmisatom";
 		//$Usuario = "admin";
 		$Usuario = "Acreditacion_linea";
 		//$Pass = "workmate2014";
-		$Pass = "acreditacion2014";
+		$Pass = "acreditacion2014";*/
+		$urlRepositorio = "http://elmorro.resourcemanager.cl:8080/alfresco/cmisatom";
+        $Usuario = "admin";
+        $Pass = "workmate2014";
 		$carpeta = "/Compartido";
 		$idCarpeta = "workspace://SpacesStore/99047dab-4c88-4e70-a548-b3d2139ffc65";
 		$nuevaCarpeta = "API";
@@ -44,8 +48,8 @@ class HomeController extends BaseController {
 		$conexion->conectar($urlRepositorio,$Usuario,$Pass);
 		$conexion->checkRespuesta();
 
-		$conexion->setCarpetaPorRuta($carpeta);
-		$conexion->checkRespuesta();
+		//$conexion->setCarpetaPorRuta($carpeta);
+		//$conexion->checkRespuesta();
 
 		//$conexion->crearCarpeta($nuevaCarpeta);
 		//$conexion->checkRespuesta();
@@ -53,10 +57,10 @@ class HomeController extends BaseController {
 		/*$conexion->crearArchivo($archivo,array(),$contenido);
 		$conexion->checkRespuesta();
 		*/
-		$conexion->setCarpetaPorId($idCarpeta);
-		$conexion->checkRespuesta();
+		//$conexion->setCarpetaPorId($idCarpeta);
+		//$conexion->checkRespuesta();
 		
-		$objs = getcwd();
+		$objs = $conexion->moverArchivo("workspace://SpacesStore/3c7255fa-d796-4591-ab64-a4969ae071b8;1.0");
 		/*/$objs = $conexion->query("SELECT * FROM cmis:folder where cmis:name = '17359243'");
 		$objs = $objs->numItems;
 		if ($objs > 0) {
