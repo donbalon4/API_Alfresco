@@ -271,7 +271,6 @@ class WMAlfresco{
 		$archTemporal = fopen($nombre, "wb");
 		fwrite($archTemporal, $contenido);
 		fclose($archTemporal);
-		print_r($archTemporal);
 		$dominio = $_SERVER['SERVER_NAME'];
 		$path = getcwd()."/".$nombre;
 		return $path;
