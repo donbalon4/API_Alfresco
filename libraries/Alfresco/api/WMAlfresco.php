@@ -288,8 +288,14 @@ class WMAlfresco{
 			$obj = $this->getObjetoPorId($id);
 			$nombreCarpeta = $obj->properties["cmis:name"];
 			$ruta = getcwd()."/".$nombreCarpeta;
-			$creaCarpeta = mkdir($ruta);
+			if (!file_exists($ruta)) {
+				$creaCarpeta = mkdir($ruta,0777,true);
+			}
+			else{
+				$creaCarpeta = true;
+			}
 			if ($creaCarpeta) {
+				chmod($ruta, 0777);
 				$hijos = $this->getHijosId($id);
 				$archivos = array();
 				for ($i=0; $i < count($hijos->objectList); $i++) { 
@@ -300,7 +306,7 @@ class WMAlfresco{
 						fwrite($archTemporal, $contenido);
 						fclose($archTemporal);
 						$archivos[$i] = $ruta."/".$nombreArchivo;
-					}
+				}
 				$zip = new ZipArchive();
 				$nombreZip = $nombreCarpeta.".zip";
 				if ($zip->open($ruta."/".$nombreZip, ZipArchive::CREATE)!==TRUE) {
@@ -319,7 +325,7 @@ class WMAlfresco{
 		        header('Expires: 0');
 		        header('Pragma: public');
 		        header('Content-Length: ' . filesize($rutaZip));
-		        ob_clean();
+		        if (ob_get_contents()) ob_end_clean();
 		        flush();
 		        readfile($rutaZip);
 		        $this->eliminarDir($ruta);
