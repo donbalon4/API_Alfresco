@@ -235,6 +235,8 @@ class WMAlfresco{
 		$archivo = $this->getObjetoPorId($id);
 		$nombre = $archivo->properties["cmis:name"];
 		$mime = $archivo->properties["cmis:contentStreamMimeType"];
+		$mime = str_replace("\t", "", $mime);
+		$mime = str_replace("\n", "", $mime);
 		$tamaño = $archivo->properties["cmis:contentStreamLength"];
 		$contenido = $this->repositorio->getContentStream($id);
 		$nombre = str_replace(" ", "_", $nombre);
@@ -251,7 +253,7 @@ class WMAlfresco{
         header('Expires: 0');
         header('Pragma: public');
         header('Content-Length: ' . filesize($nombre));
-        ob_clean();
+        if (ob_get_contents()) ob_end_clean();
         flush();
         readfile($path);
         unlink($nombre);

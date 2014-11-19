@@ -1,5 +1,0 @@
-Al agregar nuevas clases autocargables hacer los sgte:
-agregar las rutas a composer.json
-agregar las rutas a app/start/global
-situarse en la raíz del proyecto con un terminal y ejecutar
-composer dump-autoload
