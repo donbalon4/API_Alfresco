@@ -141,7 +141,7 @@ class WMAlfresco{
 		$existe = $this->existeArchivo($nombre);
 		if ($existe) {
 			print "Error:->El archivo ".$nombre." ya existe";
-			exit (255);
+			//exit (255);
 		}
 		else{
 			return $this->repositorio->createDocument($this->carpetaPadre->id,$nombre,$propiedades,$contenido,$tipo_contenido,$opciones);
@@ -334,7 +334,7 @@ class WMAlfresco{
 		}
 		else{
 			print("no se puede descargar la carpeta");
-			exit(255);
+			//exit(255);
 		}
 	}
 
