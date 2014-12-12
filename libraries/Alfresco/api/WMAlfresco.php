@@ -174,6 +174,8 @@ class WMAlfresco{
 		$archivo = $this->getObjetoPorId($id);
 		$nombre = $archivo->properties["cmis:name"];
 		$mime = $archivo->properties["cmis:contentStreamMimeType"];
+		$mime = str_replace("\t", "", $mime);
+		$mime = str_replace("\n", "", $mime);
 		$tamaño = $archivo->properties["cmis:contentStreamLength"];
 		$contenido = $this->repositorio->getContentStream($id);
 		$nombre = str_replace(" ", "_", $nombre);
@@ -199,13 +201,9 @@ class WMAlfresco{
 	public function verArchivo($id){
 		$archivo = $this->getObjetoPorId($id);
 		$nombre = $archivo->properties["cmis:name"];
-		$mime ="";
-		if (substr($nombre,-3) == "pdf") {
-			$mime = "application/pdf";
-		}
-		else{
-			$mime = "octet-stream";
-		}
+		$mime = $archivo->properties["cmis:contentStreamMimeType"];
+		$mime = str_replace("\t", "", $mime);
+		$mime = str_replace("\n", "", $mime);
 		$tamaño = $archivo->properties["cmis:contentStreamLength"];
 		$contenido = $this->repositorio->getContentStream($id);
 		$nombre = str_replace(" ", "_", $nombre);
