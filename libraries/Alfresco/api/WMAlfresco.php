@@ -157,6 +157,7 @@ class WMAlfresco{
 	public function subirArchivo($archivo){
 		//deben estar en base 64
 		$nombre = basename($archivo);
+		$nombre = $this->quitaTildes($nombre);
 		$archivoAbierto = fopen($archivo, "r");
 		$contenido = fread($archivoAbierto, filesize($archivo));
 		//activar extension php fileinfo
@@ -264,7 +265,6 @@ class WMAlfresco{
 	public function moverArchivo($id){
 		$archivo = $this->getObjetoPorId($id);
 		$nombre = $archivo->properties["cmis:name"];
-		$mime = $archivo->properties["cmis:contentStreamMimeType"];
 		$tamaño = $archivo->properties["cmis:contentStreamLength"];
 		$contenido = $this->repositorio->getContentStream($id);
 		$nombre = str_replace(" ", "_", $nombre);
@@ -453,6 +453,60 @@ class WMAlfresco{
 	    }
 	    closedir($current_dir);
 	    rmdir(${'dir'});
+	}
+
+	private function quitaTildes($palabra){
+		$palabra = trim($palabra);
+
+	    $palabra = str_replace(
+	        array('á', 'à', 'ä', 'â', 'ª', 'Á', 'À', 'Â', 'Ä'),
+	        array('a', 'a', 'a', 'a', 'a', 'A', 'A', 'A', 'A'),
+	        $palabra
+	    );
+
+	    $palabra = str_replace(
+	        array('é', 'è', 'ë', 'ê', 'É', 'È', 'Ê', 'Ë'),
+	        array('e', 'e', 'e', 'e', 'E', 'E', 'E', 'E'),
+	        $palabra
+	    );
+
+	    $palabra = str_replace(
+	        array('í', 'ì', 'ï', 'î', 'Í', 'Ì', 'Ï', 'Î'),
+	        array('i', 'i', 'i', 'i', 'I', 'I', 'I', 'I'),
+	        $palabra
+	    );
+
+	    $palabra = str_replace(
+	        array('ó', 'ò', 'ö', 'ô', 'Ó', 'Ò', 'Ö', 'Ô'),
+	        array('o', 'o', 'o', 'o', 'O', 'O', 'O', 'O'),
+	        $palabra
+	    );
+
+	    $palabra = str_replace(
+	        array('ú', 'ù', 'ü', 'û', 'Ú', 'Ù', 'Û', 'Ü'),
+	        array('u', 'u', 'u', 'u', 'U', 'U', 'U', 'U'),
+	        $palabra
+	    );
+
+	    $palabra = str_replace(
+	        array('ñ', 'Ñ', 'ç', 'Ç'),
+	        array('n', 'N', 'c', 'C',),
+	        $palabra
+	    );
+
+	    //Esta parte se encarga de eliminar cualquier caracter extraño
+	    $palabra = str_replace(
+	        array("\\", "¨", "º", "~",
+	             "#", "@", "|", "!", "\"",
+	             "$", "%", "&", "/",
+	             "(", ")", "?", "'", "¡",
+	             "¿", "[", "^", "`", "]",
+	             "+", "}", "{", "¨", "´",
+	             ">", "< ", ";", ",", ":"),
+	        '',
+	        $palabra
+	    );
+   		return $palabra;
 	}
 
 }
