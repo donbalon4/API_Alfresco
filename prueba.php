@@ -14,7 +14,7 @@ require_once "libraries/Alfresco/api/WMAlfresco.php";
 	$Usuario = "Acreditacion_linea";
 	//$Pass = "workmate2014";
 	$Pass = "acreditacion2014";*/
-	$urlRepositorio = "http://desarrollo.workmate.cl:8080/alfresco/cmisatom";
+	$urlRepositorio = "http://201.148.107.4:8080/alfresco/cmisatom";
     $Usuario = "admin";
     $Pass = "workmate2014";
 	$carpeta = "/Compartido";
@@ -60,8 +60,8 @@ require_once "libraries/Alfresco/api/WMAlfresco.php";
 		$objs = "No existe la carpeta";
 	}*/
 	//$objs = $conexion->verArchivo("workspace://SpacesStore/998a37ce-d9c9-45e7-bace-ca5354ca2379;1.0");
-	$objs = $conexion->descargarCarpeta($idCarpeta);
-
+	//$objs = $conexion->descargarCarpeta($idCarpeta);
+	$objs = $conexion->query("SELECT * FROM cmis:folder where cmis:name = '11900237'");
 	//$objs = $conexion->getHijosId($idCarpeta);
 	//$objs = $conexion->descargarArchivo("workspace://SpacesStore/998a37ce-d9c9-45e7-bace-ca5354ca2379;1.0");
 	//$objs = $conexion->subirArchivo($archivo);
@@ -69,7 +69,9 @@ require_once "libraries/Alfresco/api/WMAlfresco.php";
 	//$objs = fread($archivoA, filesize($archivo));
 	//$objs = $conexion->moverObjeto($idArchivo,$idCarpetaNueva,$idCarpeta);
 	//$objs = $conexion->getObjetoPorId($idArchivo);
-
+	echo "<pre>";
+	print_r($objs);
+	echo "</pre>";
 	//$objs = $conexion->carpetaPadre;
 
 	$checkeado = false;
