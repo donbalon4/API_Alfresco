@@ -1,9 +1,6 @@
 <?php 
 /*
- *		@Fecha: 21 Agosto 2014
- *		@Ult. Actualizacion: 23 Septiembre 2014->función para querys
- * 		@Autor: Daniel Ojeda Sandoval
- *      @Email: danielojeda@workmate.cl
+ *		@autor: Daniel Ojeda
  * 		@Version: 1.2
  */
 
@@ -76,11 +73,6 @@ class WMAlfresco{
 	public function setCarpetaPorRuta($carpeta,$opciones = array()){
 		$obj = $this->repositorio->getObjectByPath($carpeta,$opciones);
 		$propiedad = $obj->properties['cmis:baseTypeId'];
-		/*
-		echo "<pre>obj: ";
-		print_r($obj);
-		echo "</pre>";
-		*/
 		if($propiedad != "cmis:folder"){
 			print "El objeto no es una carpeta";
 			exit (255);
@@ -171,34 +163,7 @@ class WMAlfresco{
 	/*
 	Descarga un archivo a un directorio local y temporal para que pueda ser visto en linea.
 	*/
-	public function verArchivo($id){
-		$archivo = $this->getObjetoPorId($id);
-		$nombre = $archivo->properties["cmis:name"];
-		$mime = $archivo->properties["cmis:contentStreamMimeType"];
-		$mime = str_replace("\t", "", $mime);
-		$mime = str_replace("\n", "", $mime);
-		$tamaño = $archivo->properties["cmis:contentStreamLength"];
-		$contenido = $this->repositorio->getContentStream($id);
-		$nombre = str_replace(" ", "_", $nombre);
-		$archTemporal = fopen($nombre, "wb");
-		fwrite($archTemporal, $contenido);
-		fclose($archTemporal);
-		$dominio = $_SERVER['SERVER_NAME'];
-		$path = getcwd()."/".$nombre;
-		header ("Cache-Control: must-revalidate, post-check=0, pre-check=0");
-        header('Content-type: '.$mime);
-        header('Content-Transfer-Encoding: Binary');
-        header('Expires: 0');
-        header('Pragma: public');
-        header('Content-Length: ' . filesize($nombre));
-        ob_clean();
-        flush();
-        readfile($path);
-        unlink($nombre);
-        exit();
-	}
-
-	/* Para linux
+	
 	public function verArchivo($id){
 		$archivo = $this->getObjetoPorId($id);
 		$nombre = $archivo->properties["cmis:name"];
@@ -224,7 +189,7 @@ class WMAlfresco{
         readfile($path);
         unlink($nombre);
         exit();
-	}*/
+	}
 
 	/*
 	Descarga de archivos según su id

@@ -1096,7 +1096,7 @@ xmlns:cmisra="http://docs.oasis-open.org/ns/cmis/restatom/200908/">
 		$varmap["id"] = $objectId;
 		$obj_url = $this->getLink($objectId, "edit");
 		$ret = $this->doDelete($obj_url);
-		return;
+		return $ret;
 	}
 
 	/**
