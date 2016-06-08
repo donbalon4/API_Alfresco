@@ -10,3 +10,8 @@ Thumbs.db
 .vagrant/
 /bootstrap.sh
 Vagrantfile
+vendor/
+test/
+composer*
+bin/
+*.cache
