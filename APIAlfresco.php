@@ -11,6 +11,9 @@
  * $conexion->connect($urlRepository,$User,$Pass);
  * $conexion->checkResponse();
  * $conexion->setFolderByPath($folder);
+ *
+ * This API uses the files listed below, developed by Apache Chemistry
+ * for more info visit: https://chemistry.apache.org/php/phpclient.html
  */
 require_once 'cmis_repository_wrapper.php';
 require_once 'cmis_service.php';
@@ -56,9 +59,9 @@ class APIAlfresco
      */
     public function connect($url, $user, $pass)
     {
-        $this->urlRepository = $url;
-        $this->user = $user;
-        $this->pass = $pass;
+        $this->urlRepository = (string) $url;
+        $this->user = (string) $user;
+        $this->pass = (string) $pass;
         $this->repository = new CMISService($url, $user, $pass);
     }
 
@@ -78,7 +81,7 @@ class APIAlfresco
      * @param string $folder
      * @param array  $options
      */
-    public function setFolderByPath($folder, $options = array())
+    public function setFolderByPath($folder, array $options = array())
     {
         $obj = $this->repository->getObjectByPath($folder, $options);
         $propiedad = $obj->properties['cmis:baseTypeId'];
@@ -98,7 +101,7 @@ class APIAlfresco
      * @param string $id
      * @param array  $options
      */
-    public function setFolderById($id, $options = array())
+    public function setFolderById($id, array $options = array())
     {
         $obj = $this->repository->getObject($id, $options);
         $propiedad = $obj->properties['cmis:baseTypeId'];
@@ -111,15 +114,17 @@ class APIAlfresco
     }
 
     /**
-     * Creates a folder inside the folder previously setted.
+     * Creates a folder inside workspace folder.
      *
      * @example $name = "folder";
      *
      * @param string $name
      * @param array  $properties
      * @param array  $options
+     *
+     * @return null|stdClass
      */
-    public function createFolder($name, $properties = array(), $options = array())
+    public function createFolder($name, array $properties = array(), array $options = array())
     {
         $exists = $this->existsFolder($name);
         if ($exists) {
@@ -140,9 +145,11 @@ class APIAlfresco
      * @param string $name
      * @param string $content
      * @param string $content_type
-     * @param array  $options
+     * @param array  $option
+     *
+     * @return null|stdClass
      */
-    public function createFile($name, $properties = array(), $content = null, $content_type = 'application/octet-stream', $options = array())
+    public function createFile($name, array $properties = array(), $content = null, $content_type = 'application/octet-stream', array $options = array())
     {
         $exists = $this->FileExists($name);
         if ($exists) {
@@ -159,6 +166,8 @@ class APIAlfresco
      * @example $file = "c:/temp/hello.pdf";
      *
      * @param string $file
+     *
+     * @return stdClass
      */
     public function uploadFile($file)
     {
@@ -250,6 +259,8 @@ class APIAlfresco
      * Downloads a file by its id to a temp folder.
      *
      * @param string $id
+     *
+     * @return string
      */
     public function moveFile($id)
     {
@@ -332,6 +343,8 @@ class APIAlfresco
 
     /**
      * Gets the children of the folder previously setted.
+     *
+     * @return stdClass
      */
     public function getChildrenFolder()
     {
@@ -342,6 +355,8 @@ class APIAlfresco
      * Gets the children of a folder by its Id.
      *
      * @param string $id
+     *
+     * @return stdClass
      */
     public function getChildrenId($id)
     {
@@ -352,6 +367,8 @@ class APIAlfresco
      * Gets an object by its Id.
      *
      * @param string $id
+     *
+     * @return stdClass
      */
     public function getObjectById($id)
     {
@@ -363,6 +380,8 @@ class APIAlfresco
      *
      * @param string $id
      * @param array  $options
+     *
+     * @return stdClass
      */
     public function delete($id, $options = array())
     {
@@ -373,6 +392,10 @@ class APIAlfresco
      * Executes a query to repository.
      *
      * @param string $query
+     *
+     * @example $query = 'SELECT * FROM cmis:document';
+     *
+     * @return stdClass
      */
     public function query($query)
     {
