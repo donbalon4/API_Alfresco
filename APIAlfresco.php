@@ -12,7 +12,7 @@
  * $conexion->checkResponse();
  * $conexion->setFolderByPath($folder);
  *
- * This API uses the files listed below, developed by Apache Chemistry
+ * This API uses the files listed below, distributed by Apache Chemistry
  * for more info visit: https://chemistry.apache.org/php/phpclient.html
  */
 require_once 'cmis_repository_wrapper.php';
@@ -28,10 +28,6 @@ class APIAlfresco
     public $parentFolder;
 
     // Singleton
-
-    public function __construct()
-    {
-    }
 
     public static function getInstance()
     {
