@@ -21,9 +21,8 @@ clone this repository and put the files together in your project.
     $conexion = APIAlfresco::getInstance();
     try {
         $conexion->connect($urlRepository,$user,$pass); 
-        $conexion->checkResponse();
     } catch (Exception $e) {
-        print_r($e->getMessage());
+        //do something
     }
 
 ### Set Workspace directory:

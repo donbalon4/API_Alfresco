@@ -58,14 +58,10 @@ class APIAlfresco
         $this->urlRepository = (string) $url;
         $this->user = (string) $user;
         $this->pass = (string) $pass;
-        $this->repository = new CMISService($url, $user, $pass);
-    }
-
-    public function checkResponse()
-    {
-        if ($this->repository->getLastRequest()->code > 299) {
-            echo 'an error has ocurred';
-            exit(255);
+        try {
+            $this->repository = new CMISService($url, $user, $pass);
+        } catch (CmisRuntimeException $e) {
+            $this->processException($e);
         }
     }
 
@@ -79,13 +75,16 @@ class APIAlfresco
      */
     public function setFolderByPath($folder, array $options = array())
     {
-        $obj = $this->repository->getObjectByPath($folder, $options);
-        $propiedad = $obj->properties['cmis:baseTypeId'];
-        if ($propiedad != 'cmis:folder') {
-            echo 'The object is not a folder';
-            exit(255);
-        } else {
-            $this->parentFolder = $obj;
+        try {
+            $obj = $this->repository->getObjectByPath($folder, $options);
+            $properties = $obj->properties['cmis:baseTypeId'];
+            if ($properties != 'cmis:folder') {
+                throw new Exception('The object is not a folder');
+            } else {
+                $this->parentFolder = $obj;
+            }
+        } catch (Exception $e) {
+            $this->processException($e);
         }
     }
 
@@ -99,13 +98,16 @@ class APIAlfresco
      */
     public function setFolderById($id, array $options = array())
     {
-        $obj = $this->repository->getObject($id, $options);
-        $propiedad = $obj->properties['cmis:baseTypeId'];
-        if ($propiedad != 'cmis:folder') {
-            echo 'The object is not a folder';
-            exit(255);
-        } else {
-            $this->parentFolder = $obj;
+        try {
+            $obj = $this->repository->getObject($id, $options);
+            $properties = $obj->properties['cmis:baseTypeId'];
+            if ($properties != 'cmis:folder') {
+                throw new Exception('The object is not a folder', 1);
+            } else {
+                $this->parentFolder = $obj;
+            }
+        } catch (Exception $e) {
+            $this->processException($e);
         }
     }
 
@@ -124,8 +126,7 @@ class APIAlfresco
     {
         $exists = $this->existsFolder($name);
         if ($exists) {
-            echo 'Error:->The '.$name.' folder already exists';
-            exit(255);
+            throw new Exception('Error:->The folder named '.$name.' already exists', 1);
         } else {
             return $this->repository->createFolder($this->parentFolder->id, $name);
         }
@@ -149,8 +150,7 @@ class APIAlfresco
     {
         $exists = $this->FileExists($name);
         if ($exists) {
-            echo 'Error:->the '.$name.' file already exists';
-            //exit (255);
+            throw new Exception('Error:->the file named '.$name.' already exists', 1);
         } else {
             return $this->repository->createDocument($this->parentFolder->id, $name, $properties, $content, $content_type, $options);
         }
@@ -567,5 +567,25 @@ class APIAlfresco
         );
 
         return $word;
+    }
+
+    private function processException($e)
+    {
+        echo '<pre>';
+        print_r($e->getMessage());
+        echo '</pre>';
+
+        switch ($e->getCode()) {
+            case '401':
+                throw new Exception('Wrong user or password', 401);
+            case '0':
+                throw new Exception('Wrong url', 0);
+            case '404':
+                throw new Exception('Object not found', 404);
+            case '400':
+                throw new Exception('Invalid Argument', 404);
+            default:
+                throw $e;
+        }
     }
 }
