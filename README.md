@@ -13,22 +13,24 @@ clone this repository and put the files together in your project.
 
     require '/path/to/APIAlfresco.php';`
 
-    `$urlRepository = 'http://xx.xxx.xx.xx:xxxx/alfresco/cmisatom';`
-    `$user = 'user';`
-    `$pass = 'pass';`
-    `$folder =  '/Shared';`
-    `$folderId = 'workspace://SpacesStore/xxx-xxx-xxx-xxx-xxx';`
-    `$fileId = 'workspace://SpacesStore/xxx-xxx-xxx-xx-xxxx;`x.X';`
-    `$childrenId = 'workspace://SpacesStore/xxx-xxx-Xxx-xxx-xxx';`
+    $urlRepository = 'http://xx.xxx.xx.xx:xxxx/alfresco/cmisatom';
+    $user = 'user';
+    $pass = 'pass';
+    $folder =  '/Shared';
+    $folderId = 'workspace://SpacesStore/xxx-xxx-xxx-xxx-xxx';
+    $fileId = 'workspace://SpacesStore/xxx-xxx-xxx-xx-xxxx;`x.X';
+    $childrenId = 'workspace://SpacesStore/xxx-xxx-Xxx-xxx-xxx';
 
 * Connect to repository:
 
-    `$conexion = APIAlfresco::getInstance();             `
-    `try {                                               `
-    `    $conexion->connect($urlRepository,$user,$pass); `
-    `} catch (Exception $e) {                            `
-    `    //do something                                  `
-    `}                                                   `
+    ```
+    $conexion = APIAlfresco::getInstance();             
+    try {                                               
+        $conexion->connect($urlRepository,$user,$pass); 
+    } catch (Exception $e) {                            
+        //do something                                  
+    }
+    ```
 
 * Set Workspace directory:
 
