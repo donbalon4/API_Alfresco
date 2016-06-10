@@ -20,11 +20,29 @@ require_once 'cmis_service.php';
 
 class APIAlfresco
 {
+    /**
+     * @var APIALfresco
+     */
     private static $instance;
+    /**
+     * @var string
+     */
     public $urlRepository;
+    /**
+     * @var string
+     */
     public $user;
+    /**
+     * @var string
+     */
     public $pass;
+    /**
+     * @var CmisService
+     */
     public $repository;
+    /**
+     * @var string
+     */
     public $parentFolder;
 
     // Singleton
@@ -308,7 +326,7 @@ class APIAlfresco
                 $zip = new ZipArchive();
                 $zipName = $folderName.'.zip';
                 if ($zip->open($path.'/'.$zipName, ZipArchive::CREATE) !== true) {
-                    exit("could not open <$zipName>\n");
+                    throw new Exception("could not open <$zipName>\n", 1);
                 }
                 for ($i = 0; $i < count($files); ++$i) {
                     $zip->addFile($files[$i], basename($files[$i]));
@@ -332,8 +350,7 @@ class APIAlfresco
                 exit();
             }
         } else {
-            echo 'could not download the folder';
-            //exit(255);
+            throw new Exception('Could not download the folder, maybe it has subfolders', 1);
         }
     }
 
@@ -344,6 +361,10 @@ class APIAlfresco
      */
     public function getChildrenFolder()
     {
+        if (is_null($this->parentFolder)) {
+            throw new Exception('You must set a workspace folder', 1);
+        }
+
         return $this->repository->getChildren($this->parentFolder->id);
     }
 

@@ -1,5 +1,10 @@
 # API_Alfresco
 
+## Requirements
+
+1. PHP > 5.6 
+2. Alfresco Community Edition V 5.0
+
 ## USAGE
 
 clone this repository and put the files together in your project.
@@ -16,7 +21,7 @@ clone this repository and put the files together in your project.
     $fileId = 'workspace://SpacesStore/xxx-xxx-xxx-xx-xxxx;x.X';
     $childrenId = 'workspace://SpacesStore/xxx-xxx-Xxx-xxx-xxx';
 
-### Connect to repository:
+** Connect to repository:
 
     $conexion = APIAlfresco::getInstance();
     try {
@@ -25,7 +30,7 @@ clone this repository and put the files together in your project.
         //do something
     }
 
-### Set Workspace directory:
+** Set Workspace directory:
 
     $conexion->setFolderByPath($folder);
 
@@ -33,51 +38,56 @@ or
 
     $conexion->setFolderById($folderId);
 
-### Create Folder:
+** Create Folder:
 
     $conexion->createFolder('new_folder');
 
-### Create File:
+** Create File:
 
     $conexion->createFile('file',[],'hola soy un archivo');
 
-### Upload File:
+** Upload File:
 
     $conexion->uploadFile('new_file.txt');
 
-### Display File in the browser:
+** Display File in the browser:
 
     $conexion->displayFile($fileId);
 
-### Download a File
+** Download a File
 
     $conexion->downloadFile($fileId);
 
-### Move a File to a local folder
+** Move a File to a local folder
 
     $conexion->moveFile($fileId);
 
-### Download a folder
+** Download a folder
 
     $conexion->downloadFolder($folderId);
 
-### Get Children of workspace folder
+** Get Children of workspace folder
 
     $conexion->getChildrenFolder();
 
-### Get Children of a folder by its id
+** Get Children of a folder by its id
 
     $conexion->getChildrenId($childrenId);
 
-### Get Object by Id
+** Get Object by Id
 
     $conexion->getObjectById($childrenId);
 
-### Delete an object
+** Delete an object
+
     $conexion->delete($childrenId);
 
-### Perform a [query](https://wiki.alfresco.com/wiki/CMIS_Query_Language)
+** Perform a [query](https://wiki.alfresco.com/wiki/CMIS_Query_Language)
 
     $conexion->query("SELECT * FROM cmis:document");
 
+
+##Contribute
+
+We (I) appreciate if you have any other custom function that you want to add to this repository and share with the community. :D
 
