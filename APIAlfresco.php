@@ -279,40 +279,71 @@ class APIAlfresco
      *
      * @param string $id
      */
-    public function downloadFolder($id)
+    public function downloadFolder($id, $previousPath = null, $zip = null, $firstPath = null)
     {
-        $hasFolders = $this->hasFolders($id);
-        //if has no folders
-        if (!$hasFolders) {
-            $obj = $this->getObjectById($id);
-            $folderName = $obj->properties['cmis:name'];
+        $path = $previousPath;
+        $obj = $this->getObjectById($id);
+        $folderName = $obj->properties['cmis:name'];
+        if (!is_null($path)) {
+            $zip = $zip;
+            $path = $path.'/'.$folderName;
+            //var_dump(basename($path));
+            $zip->addEmptyDir(basename($path));
+        } else {
+            $createFolder = false;
             $path = getcwd().'/'.$folderName;
-            if (!file_exists($path)) {
-                $createFolder = mkdir($path, 0777, true);
-            } else {
-                $createFolder = true;
-            }
-            if ($createFolder) {
-                chmod($path, 0777);
-                $children = $this->getChildrenId($id);
-                $files = array();
-                for ($i = 0; $i < count($children->objectList); ++$i) {
-                    $fileName = $children->objectList[$i]->properties['cmis:name'];
-                    $length = $children->objectList[$i]->properties['cmis:contentStreamLength'];
-                    $content = $this->repository->getContentStream($children->objectList[$i]->id);
-                    $tempFile = fopen($path.'/'.$fileName, 'wb');
-                    fwrite($tempFile, $content);
-                    fclose($tempFile);
-                    $files[$i] = $path.'/'.$fileName;
-                }
+            $firstPath = $path;
+        }
+        if (!file_exists($path)) {
+            $createFolder = mkdir($path, 0777, true);
+        } else {
+            $createFolder = true;
+        }
+        if ($createFolder) {
+            //chmod($path, 0777);
+            if (is_null($zip)) {
                 $zip = new ZipArchive();
                 $zipName = $folderName.'.zip';
                 if ($zip->open($path.'/'.$zipName, ZipArchive::CREATE) !== true) {
                     exit("could not open <$zipName>\n");
                 }
-                for ($i = 0; $i < count($files); ++$i) {
+            }
+
+            $children = $this->getChildrenId($id);
+            /*
+            echo "<pre>";
+            print_r($children);
+            echo "</pre>";
+            die();*/
+            $files = array();
+            $c = 0;
+            for ($i = 0; $i < count($children->objectList); ++$i) {
+                if ($children->objectList[$i]->properties['cmis:baseTypeId'] == 'cmis:folder') {
+                    $this->downloadFolder($children->objectList[$i]->id, $path, $zip, $firstPath);
+                } else {
+                    $fileName = $children->objectList[$i]->properties['cmis:name'];
+                    $length = $children->objectList[$i]->properties['cmis:contentStreamLength'];
+                    $content = $this->repository->getContentStream($children->objectList[$i]->id);
+                    var_dump($path);
+                    $tempFile = fopen($path.'/'.$fileName, 'wb');
+                    fwrite($tempFile, $content);
+                    fclose($tempFile);
+                    $files[$c] = $path.'/'.$fileName;
+                    ++$c;
+                }
+            }
+
+            for ($i = 0; $i < count($files); ++$i) {
+                //var_dump($files[$i]);
+                //var_dump(basename($files[$i]));
+                //die();
+                if ($zip->filename != "$folderName.zip") {
+                    $zip->addFile($files[$i], str_replace($firstPath, '', $files[$i]));
+                } else {
                     $zip->addFile($files[$i], basename($files[$i]));
                 }
+            }
+            if (is_null($previousPath)) {
                 $zip->close();
                 $zipPath = $path.'/'.$zipName;
                 header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
@@ -331,9 +362,6 @@ class APIAlfresco
                 $this->deleteDir($path);
                 exit();
             }
-        } else {
-            echo 'could not download the folder';
-            //exit(255);
         }
     }
 
