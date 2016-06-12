@@ -97,10 +97,9 @@ class APIAlfresco
             $obj = $this->repository->getObjectByPath($folder, $options);
             $properties = $obj->properties['cmis:baseTypeId'];
             if ($properties != 'cmis:folder') {
-                throw new Exception('The object is not a folder');
-            } else {
-                $this->parentFolder = $obj;
+                throw new UnexpectedValueException('The object is not a folder');
             }
+            $this->parentFolder = $obj;
         } catch (Exception $e) {
             $this->processException($e);
         }
@@ -120,10 +119,9 @@ class APIAlfresco
             $obj = $this->repository->getObject($id, $options);
             $properties = $obj->properties['cmis:baseTypeId'];
             if ($properties != 'cmis:folder') {
-                throw new Exception('The object is not a folder', 1);
-            } else {
-                $this->parentFolder = $obj;
+                throw new UnexpectedValueException('The object is not a folder', 1);
             }
+            $this->parentFolder = $obj;
         } catch (Exception $e) {
             $this->processException($e);
         }
@@ -138,16 +136,16 @@ class APIAlfresco
      * @param array  $properties
      * @param array  $options
      *
-     * @return null|stdClass
+     * @return stdClass
      */
     public function createFolder($name, array $properties = array(), array $options = array())
     {
         $exists = $this->existsFolder($name);
         if ($exists) {
             throw new Exception('Error:->The folder named '.$name.' already exists', 1);
-        } else {
-            return $this->repository->createFolder($this->parentFolder->id, $name);
         }
+
+        return $this->repository->createFolder($this->parentFolder->id, $name);
     }
 
     /**
@@ -162,16 +160,16 @@ class APIAlfresco
      * @param string $content_type
      * @param array  $option
      *
-     * @return null|stdClass
+     * @return stdClass
      */
     public function createFile($name, array $properties = array(), $content = null, $content_type = 'application/octet-stream', array $options = array())
     {
         $exists = $this->FileExists($name);
         if ($exists) {
             throw new Exception('Error:->the file named '.$name.' already exists', 1);
-        } else {
-            return $this->repository->createDocument($this->parentFolder->id, $name, $properties, $content, $content_type, $options);
         }
+
+        return $this->repository->createDocument($this->parentFolder->id, $name, $properties, $content, $content_type, $options);
     }
 
     /**
@@ -590,12 +588,13 @@ class APIAlfresco
         return $word;
     }
 
+    /**
+     * Proccess errors coming from cmis_wrapper.
+     *
+     * @param Exception $e
+     */
     private function processException($e)
     {
-        echo '<pre>';
-        print_r($e->getMessage());
-        echo '</pre>';
-
         switch ($e->getCode()) {
             case '401':
                 throw new Exception('Wrong user or password', 401);
