@@ -299,11 +299,12 @@ class APIAlfresco
     {
         $path = $previousPath;
         $obj = $this->getObjectById($id);
+        if ($obj->properties['cmis:baseTypeId'] != 'cmis:folder') {
+            throw new UnexpectedValueException('The object is not a folder', 1);
+        }
         $folderName = $obj->properties['cmis:name'];
         if (!is_null($path)) {
-            $zip = $zip;
             $path = $path.'/'.$folderName;
-            //var_dump(basename($path));
             $zip->addEmptyDir(str_replace($firstPath, '', $path));
         } else {
             $createFolder = false;
@@ -316,21 +317,14 @@ class APIAlfresco
             $createFolder = true;
         }
         if ($createFolder) {
-            //chmod($path, 0777);
             if (is_null($zip)) {
                 $zip = new ZipArchive();
                 $zipName = $folderName.'.zip';
                 if ($zip->open($path.'/'.$zipName, ZipArchive::CREATE) !== true) {
-                    exit("could not open <$zipName>\n");
+                    throw new RuntimeException("could not open <$zipName>\n", 1);
                 }
             }
-
             $children = $this->getChildrenId($id);
-            /*
-            echo "<pre>";
-            print_r($children);
-            echo "</pre>";
-            die();*/
             $files = array();
             $c = 0;
             for ($i = 0; $i < count($children->objectList); ++$i) {
@@ -340,7 +334,6 @@ class APIAlfresco
                     $fileName = $children->objectList[$i]->properties['cmis:name'];
                     $length = $children->objectList[$i]->properties['cmis:contentStreamLength'];
                     $content = $this->repository->getContentStream($children->objectList[$i]->id);
-                    var_dump($path);
                     $tempFile = fopen($path.'/'.$fileName, 'wb');
                     fwrite($tempFile, $content);
                     fclose($tempFile);
@@ -350,14 +343,7 @@ class APIAlfresco
             }
 
             for ($i = 0; $i < count($files); ++$i) {
-                //var_dump($files[$i]);
-                //var_dump(basename($files[$i]));
-                //die();
-                if ($zip->filename != "$folderName.zip") {
-                    $zip->addFile($files[$i], str_replace($firstPath, '', $files[$i]));
-                } else {
-                    $zip->addFile($files[$i], basename($files[$i]));
-                }
+                $zip->addFile($files[$i], str_replace($firstPath, '', $files[$i]));
             }
             if (is_null($previousPath)) {
                 $zip->close();
@@ -375,13 +361,10 @@ class APIAlfresco
                 }
                 flush();
                 readfile($zipPath);
-                $this->deleteDir($path);
                 exit();
             }
-/*
         } else {
-            throw new Exception('Could not download the folder, maybe it has subfolders', 1);
-*/
+            throw new RuntimeException('Could not create temporal folder', 1);
         }
     }
 
@@ -544,19 +527,22 @@ class APIAlfresco
      * Deletes a directory.
      *
      * @param string $dir The dir
+     *
+     * @return bool
      */
     private function deleteDir($dir)
     {
         $current_dir = opendir($dir);
         while ($entryname = readdir($current_dir)) {
             if (is_dir("$dir/$entryname") and ($entryname != '.' and $entryname != '..')) {
-                deldir("${dir}/${entryname}");
+                $this->deleteDir("${dir}/${entryname}");
             } elseif ($entryname != '.' and $entryname != '..') {
                 unlink("${dir}/${entryname}");
             }
         }
         closedir($current_dir);
-        rmdir(${'dir'});
+
+        return rmdir(${'dir'});
     }
 
     /**
