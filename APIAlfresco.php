@@ -20,11 +20,29 @@ require_once 'cmis_service.php';
 
 class APIAlfresco
 {
+    /**
+     * @var APIALfresco
+     */
     private static $instance;
+    /**
+     * @var string
+     */
     public $urlRepository;
+    /**
+     * @var string
+     */
     public $user;
+    /**
+     * @var string
+     */
     public $pass;
+    /**
+     * @var CmisService
+     */
     public $repository;
+    /**
+     * @var string
+     */
     public $parentFolder;
 
     // Singleton
@@ -58,14 +76,10 @@ class APIAlfresco
         $this->urlRepository = (string) $url;
         $this->user = (string) $user;
         $this->pass = (string) $pass;
-        $this->repository = new CMISService($url, $user, $pass);
-    }
-
-    public function checkResponse()
-    {
-        if ($this->repository->getLastRequest()->code > 299) {
-            echo 'an error has ocurred';
-            exit(255);
+        try {
+            $this->repository = new CMISService($url, $user, $pass);
+        } catch (CmisRuntimeException $e) {
+            $this->processException($e);
         }
     }
 
@@ -79,13 +93,15 @@ class APIAlfresco
      */
     public function setFolderByPath($folder, array $options = array())
     {
-        $obj = $this->repository->getObjectByPath($folder, $options);
-        $propiedad = $obj->properties['cmis:baseTypeId'];
-        if ($propiedad != 'cmis:folder') {
-            echo 'The object is not a folder';
-            exit(255);
-        } else {
+        try {
+            $obj = $this->repository->getObjectByPath($folder, $options);
+            $properties = $obj->properties['cmis:baseTypeId'];
+            if ($properties != 'cmis:folder') {
+                throw new UnexpectedValueException('The object is not a folder');
+            }
             $this->parentFolder = $obj;
+        } catch (Exception $e) {
+            $this->processException($e);
         }
     }
 
@@ -99,13 +115,15 @@ class APIAlfresco
      */
     public function setFolderById($id, array $options = array())
     {
-        $obj = $this->repository->getObject($id, $options);
-        $propiedad = $obj->properties['cmis:baseTypeId'];
-        if ($propiedad != 'cmis:folder') {
-            echo 'The object is not a folder';
-            exit(255);
-        } else {
+        try {
+            $obj = $this->repository->getObject($id, $options);
+            $properties = $obj->properties['cmis:baseTypeId'];
+            if ($properties != 'cmis:folder') {
+                throw new UnexpectedValueException('The object is not a folder', 1);
+            }
             $this->parentFolder = $obj;
+        } catch (Exception $e) {
+            $this->processException($e);
         }
     }
 
@@ -118,17 +136,16 @@ class APIAlfresco
      * @param array  $properties
      * @param array  $options
      *
-     * @return null|stdClass
+     * @return stdClass
      */
     public function createFolder($name, array $properties = array(), array $options = array())
     {
         $exists = $this->existsFolder($name);
         if ($exists) {
-            echo 'Error:->The '.$name.' folder already exists';
-            exit(255);
-        } else {
-            return $this->repository->createFolder($this->parentFolder->id, $name);
+            throw new Exception('Error:->The folder named '.$name.' already exists', 1);
         }
+
+        return $this->repository->createFolder($this->parentFolder->id, $name);
     }
 
     /**
@@ -143,17 +160,16 @@ class APIAlfresco
      * @param string $content_type
      * @param array  $option
      *
-     * @return null|stdClass
+     * @return stdClass
      */
     public function createFile($name, array $properties = array(), $content = null, $content_type = 'application/octet-stream', array $options = array())
     {
         $exists = $this->FileExists($name);
         if ($exists) {
-            echo 'Error:->the '.$name.' file already exists';
-            //exit (255);
-        } else {
-            return $this->repository->createDocument($this->parentFolder->id, $name, $properties, $content, $content_type, $options);
+            throw new Exception('Error:->the file named '.$name.' already exists', 1);
         }
+
+        return $this->repository->createDocument($this->parentFolder->id, $name, $properties, $content, $content_type, $options);
     }
 
     /**
@@ -308,7 +324,7 @@ class APIAlfresco
                 $zip = new ZipArchive();
                 $zipName = $folderName.'.zip';
                 if ($zip->open($path.'/'.$zipName, ZipArchive::CREATE) !== true) {
-                    exit("could not open <$zipName>\n");
+                    throw new Exception("could not open <$zipName>\n", 1);
                 }
                 for ($i = 0; $i < count($files); ++$i) {
                     $zip->addFile($files[$i], basename($files[$i]));
@@ -332,8 +348,7 @@ class APIAlfresco
                 exit();
             }
         } else {
-            echo 'could not download the folder';
-            //exit(255);
+            throw new Exception('Could not download the folder, maybe it has subfolders', 1);
         }
     }
 
@@ -344,6 +359,10 @@ class APIAlfresco
      */
     public function getChildrenFolder()
     {
+        if (is_null($this->parentFolder)) {
+            throw new Exception('You must set a workspace folder', 1);
+        }
+
         return $this->repository->getChildren($this->parentFolder->id);
     }
 
@@ -567,5 +586,26 @@ class APIAlfresco
         );
 
         return $word;
+    }
+
+    /**
+     * Proccess errors coming from cmis_wrapper.
+     *
+     * @param Exception $e
+     */
+    private function processException($e)
+    {
+        switch ($e->getCode()) {
+            case '401':
+                throw new Exception('Wrong user or password', 401);
+            case '0':
+                throw new Exception('Wrong url', 0);
+            case '404':
+                throw new Exception('Object not found', 404);
+            case '400':
+                throw new Exception('Invalid Argument', 404);
+            default:
+                throw $e;
+        }
     }
 }
