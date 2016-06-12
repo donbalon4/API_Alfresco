@@ -295,40 +295,57 @@ class APIAlfresco
      *
      * @param string $id
      */
-    public function downloadFolder($id)
+    public function downloadFolder($id, $previousPath = null, $zip = null, $firstPath = null)
     {
-        $hasFolders = $this->hasFolders($id);
-        //if has no folders
-        if (!$hasFolders) {
-            $obj = $this->getObjectById($id);
-            $folderName = $obj->properties['cmis:name'];
+        $path = $previousPath;
+        $obj = $this->getObjectById($id);
+        if ($obj->properties['cmis:baseTypeId'] != 'cmis:folder') {
+            throw new UnexpectedValueException('The object is not a folder', 1);
+        }
+        $folderName = $obj->properties['cmis:name'];
+        if (!is_null($path)) {
+            $path = $path.'/'.$folderName;
+            $zip->addEmptyDir(str_replace($firstPath, '', $path));
+        } else {
+            $createFolder = false;
             $path = getcwd().'/'.$folderName;
-            if (!file_exists($path)) {
-                $createFolder = mkdir($path, 0777, true);
-            } else {
-                $createFolder = true;
+            $firstPath = $path;
+        }
+        if (!file_exists($path)) {
+            $createFolder = mkdir($path, 0777, true);
+        } else {
+            $createFolder = true;
+        }
+        if ($createFolder) {
+            if (is_null($zip)) {
+                $zip = new ZipArchive();
+                $zipName = $folderName.'.zip';
+                if ($zip->open($path.'/'.$zipName, ZipArchive::CREATE) !== true) {
+                    throw new RuntimeException("could not open <$zipName>\n", 1);
+                }
             }
-            if ($createFolder) {
-                chmod($path, 0777);
-                $children = $this->getChildrenId($id);
-                $files = array();
-                for ($i = 0; $i < count($children->objectList); ++$i) {
+            $children = $this->getChildrenId($id);
+            $files = array();
+            $c = 0;
+            for ($i = 0; $i < count($children->objectList); ++$i) {
+                if ($children->objectList[$i]->properties['cmis:baseTypeId'] == 'cmis:folder') {
+                    $this->downloadFolder($children->objectList[$i]->id, $path, $zip, $firstPath);
+                } else {
                     $fileName = $children->objectList[$i]->properties['cmis:name'];
                     $length = $children->objectList[$i]->properties['cmis:contentStreamLength'];
                     $content = $this->repository->getContentStream($children->objectList[$i]->id);
                     $tempFile = fopen($path.'/'.$fileName, 'wb');
                     fwrite($tempFile, $content);
                     fclose($tempFile);
-                    $files[$i] = $path.'/'.$fileName;
+                    $files[$c] = $path.'/'.$fileName;
+                    ++$c;
                 }
-                $zip = new ZipArchive();
-                $zipName = $folderName.'.zip';
-                if ($zip->open($path.'/'.$zipName, ZipArchive::CREATE) !== true) {
-                    throw new Exception("could not open <$zipName>\n", 1);
-                }
-                for ($i = 0; $i < count($files); ++$i) {
-                    $zip->addFile($files[$i], basename($files[$i]));
-                }
+            }
+
+            for ($i = 0; $i < count($files); ++$i) {
+                $zip->addFile($files[$i], str_replace($firstPath, '', $files[$i]));
+            }
+            if (is_null($previousPath)) {
                 $zip->close();
                 $zipPath = $path.'/'.$zipName;
                 header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
@@ -344,11 +361,10 @@ class APIAlfresco
                 }
                 flush();
                 readfile($zipPath);
-                $this->deleteDir($path);
                 exit();
             }
         } else {
-            throw new Exception('Could not download the folder, maybe it has subfolders', 1);
+            throw new RuntimeException('Could not create temporal folder', 1);
         }
     }
 
@@ -511,19 +527,22 @@ class APIAlfresco
      * Deletes a directory.
      *
      * @param string $dir The dir
+     *
+     * @return bool
      */
     private function deleteDir($dir)
     {
         $current_dir = opendir($dir);
         while ($entryname = readdir($current_dir)) {
             if (is_dir("$dir/$entryname") and ($entryname != '.' and $entryname != '..')) {
-                deldir("${dir}/${entryname}");
+                $this->deleteDir("${dir}/${entryname}");
             } elseif ($entryname != '.' and $entryname != '..') {
                 unlink("${dir}/${entryname}");
             }
         }
         closedir($current_dir);
-        rmdir(${'dir'});
+
+        return rmdir(${'dir'});
     }
 
     /**

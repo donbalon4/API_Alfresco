@@ -1,5 +1,7 @@
 # API_Alfresco
 
+This API is a collection of useful custom functions that works with the files distributed by [Apache Chemistry](https://chemistry.apache.org/php/phpclient.html) based on the CMIS standar. The aim of this is offer an easy way to communicate your PHP app with Alfresco.
+
 ## Requirements
 
 1. PHP >= 5.4 
