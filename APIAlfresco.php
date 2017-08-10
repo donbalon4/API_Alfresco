@@ -435,9 +435,8 @@ class APIAlfresco
 
     /*
     *
-    *	Internal Use
+    *  Check if folder already exists before creating it
     *
-    *	check if the folder already exists before to create it
     */
 
     /**
@@ -447,7 +446,7 @@ class APIAlfresco
      *
      * @return bool True if exists folder, False otherwise.
      */
-    private function existsFolder($name)
+    public function existsFolder($name)
     {
         $obj = $this->repository->getChildren($this->parentFolder->id);
         $name = str_replace('(', '', $name);
@@ -470,13 +469,13 @@ class APIAlfresco
     }
 
     /**
-     * Determines if exists file.
+     * Determines if file exists.
      *
      * @param string $name
      *
      * @return bool
      */
-    private function FileExists($name)
+    public function FileExists($name)
     {
         $obj = $this->repository->getChildren($this->parentFolder->id);
         $name = str_replace('(', '', $name);
