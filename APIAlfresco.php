@@ -94,6 +94,8 @@ class APIAlfresco
     public function setFolderByPath($folder, array $options = array())
     {
         try {
+
+            $folder = $this->extractSpecialCharacters($folder);
             $obj = $this->repository->getObjectByPath($folder, $options);
             $properties = $obj->properties['cmis:baseTypeId'];
             if ($properties != 'cmis:folder') {
@@ -140,12 +142,35 @@ class APIAlfresco
      */
     public function createFolder($name, array $properties = array(), array $options = array())
     {
+        $name = $this->extractSpecialCharacters($name);
         $exists = $this->existsFolder($name);
         if ($exists) {
             throw new Exception('Error:->The folder named '.$name.' already exists', 1);
         }
 
         return $this->repository->createFolder($this->parentFolder->id, $name);
+    }
+
+    /*
+    * Method extractSpecialCharacters(name) replaces spaces with sybmol '%20'.
+    * But then in some cases we need to ensure that folder or files
+    * contain ' ' and not '%20'. Otherwise, i.e., we'd be creating "My%20Folder"
+    * instead of "My Folder" (same with files).
+    *
+    * With proper use of this method, users will be able to create folders
+    * or files with blank spaces.
+    *
+    * @example $name = "My%20Folder%20With%20Spaces";
+    *
+    * @param string $name
+    *
+    * @return  string $name ()= "My Folder With Spaces")
+    */
+    private function getBlankSpacesBack($name){
+
+      $name = str_replace('%20', ' ', $name);
+
+      return $name;
     }
 
     /**
@@ -448,6 +473,8 @@ class APIAlfresco
      */
     public function existsFolder($name)
     {
+        $name = $this->extractSpecialCharacters($name); //remove special chars (keep in mind spaces are now "%20")
+        $name = $this->getBlankSpacesBack($name); //Ensure name is something like "My Folder" and not "My%20Folder"
         $obj = $this->repository->getChildren($this->parentFolder->id);
         $name = str_replace('(', '', $name);
         $name = str_replace(')', '', $name);
@@ -477,6 +504,8 @@ class APIAlfresco
      */
     public function FileExists($name)
     {
+        $name = $this->extractSpecialCharacters($name); //remove special chars (keep in mind spaces are now "%20")
+        $name = $this->getBlankSpacesBack($name); //Ensure name is something like "My Folder" and not "My%20Folder"
         $obj = $this->repository->getChildren($this->parentFolder->id);
         $name = str_replace('(', '', $name);
         $name = str_replace(')', '', $name);
