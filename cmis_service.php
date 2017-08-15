@@ -7,9 +7,9 @@
 # to you under the Apache License, Version 2.0 (the
 # "License"); you may not use this file except in compliance
 # with the License.  You may obtain a copy of the License at
-# 
+#
 # http://www.apache.org/licenses/LICENSE-2.0
-# 
+#
 # Unless required by applicable law or agreed to in writing,
 # software distributed under the License is distributed on an
 # "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -85,40 +85,40 @@ define("MIME_CMIS_QUERY", 'application/cmisquery+xml');
 // Many Links have a pattern to them based upon objectId -- but can that be depended upon?
 /**
  * CMIS Service
- * 
+ *
  * @api CMIS
  * @since CMIS-1.0
  */
 class CMISService extends CMISRepositoryWrapper {
-    
+
     /**
      * @internal
      */
 	var $_link_cache;
-    
+
     /**
      * @internal
      */
 	var $_title_cache;
-    
+
     /**
      * @internal
      */
 	var $_objTypeId_cache;
-    
+
     /**
      * @internal
      */
 	var $_type_cache;
-    
+
     /**
      * @internal
      */
 	var $_changeToken_cache;
-    
+
 	/**
 	 * Construct a new CMISService Connector
-	 * 
+	 *
 	 * @param String $url Endpoint URL
 	 * @param String $username Username
 	 * @param String $password Password
@@ -127,7 +127,7 @@ class CMISService extends CMISRepositoryWrapper {
 	 * @api CMIS-Service
 	 * @since CMIS-1.0
 	 */
-	 
+
 /* Utility functions */
 
 	function GenURLQueryString($options)
@@ -138,7 +138,7 @@ class CMISService extends CMISRepositoryWrapper {
 			return null;
 		}
     }
-	 
+
 	function __construct($url, $username, $password, $options = null, array $addlCurlOptions = array ()) {
 		parent :: __construct($url, $username, $password, $options, $addlCurlOptions);
 		$this->_link_cache = array ();
@@ -163,10 +163,10 @@ class CMISService extends CMISRepositoryWrapper {
 	}
 
 	/**
-	 * Get an Object's property and return it as an array 
-	 * 
+	 * Get an Object's property and return it as an array
+	 *
 	 * This returns an array even if it is a scalar or null
-	 * 
+	 *
 	 * @todo Allow the getProperty method to query the object type information and
 	 * return multivalue properties as arrays even if empty or if only a single value
 	 * is present.
@@ -289,9 +289,9 @@ class CMISService extends CMISRepositoryWrapper {
 
 	/**
 	 * Get a set of object-types that are descendants of the specified type
-	 * 
+	 *
 	 * If typeId is null, then the repository MUST return all types and ignore the depth parameter.
-	 *  
+	 *
 	 * @param String $typeId The typeId of an object-type specified in the repository
 	 * @param $depth the number of levels in the hierarchy to return (-1 == all)
 	 * @returns Object The set of descendant object-types defined for the given typeId.
@@ -317,9 +317,9 @@ class CMISService extends CMISRepositoryWrapper {
 
 	/**
 	 * Get a list of object-types that are children of the specified type
-	 * 
+	 *
 	 * If typeId is null, then the repository MUST return all base object-types.
-	 *  
+	 *
 	 * @param String $typeId The typeId of an object-type specified in the repository
 	 * @returns Object The list of child object-types defined for the given typeId.
 	 * @api CMIS-RepositoryServices
@@ -343,7 +343,7 @@ class CMISService extends CMISRepositoryWrapper {
 
 	/**
 	 * Gets the definition of the specified object-type.
-	 *  
+	 *
 	 * @param String $typeId Object Type Id
 	 * @returns Object Type Definition of the Specified Object
 	 * @api CMIS-RepositoryServices
@@ -376,7 +376,7 @@ class CMISService extends CMISRepositoryWrapper {
 	//Repository Services -- New for 1.1
 	/**
 	 * Creates a new type definition.
-	 * 
+	 *
 	 * Creates a new type definition that is a subtype of an existing specified parent type.
 	 * Only properties that are new to this type (not inherited) are passed to this service.
 	 *
@@ -386,27 +386,27 @@ class CMISService extends CMISRepositoryWrapper {
 	 * @since CMIS-1.1
 	 */
 	function createType($objectType) {
-		throw new CmisNotImplementedException("createType");		
+		throw new CmisNotImplementedException("createType");
 	}
 
 	/**
 	 * Updates a type definition
-	 * 
+	 *
 	 * If you add an optional property to a type in error. There is no way to remove it/correct it - without
 	 * deleting the type.
-	 * 
+	 *
 	 * @param String $objectType A type definition object with the property definitions that are to change.
 	 * @returns Object The updated object-type including all property definitions.
 	 * @api CMIS-RepositoryServices-NotImplemented
 	 * @since CMIS-1.1
 	 */
 	function updateType($objectType) {
-		throw new CmisNotImplementedException("updateType");		
+		throw new CmisNotImplementedException("updateType");
 	}
 
 	/**
 	 * Deletes a type definition
-	 * 
+	 *
 	 * If there are object instances present of the type being deleted then this operation MUST fail.
 	 *
 	 * @param String $typeId The typeId of an object-type specified in the repository.
@@ -414,12 +414,12 @@ class CMISService extends CMISRepositoryWrapper {
 	 * @since CMIS-1.1
 	 */
 	function deleteType($typeId) {
-		throw new CmisNotImplementedException("deleteType");		
+		throw new CmisNotImplementedException("deleteType");
 	}
 	//Navigation Services
 	/**
 	 * Get the list of descendant folders contained in the specified folder.
-	 * 
+	 *
 	 * @param String $folderId the Object ID of the folder
 	 * @param String $depth The number of levels of depth in the folder hierarchy from which to return results (-1 == ALL).
 	 * @returns Object[] A tree of the child objects for the specified folder.
@@ -439,7 +439,7 @@ class CMISService extends CMISRepositoryWrapper {
 
 	/**
 	 * Get the list of descendant objects contained in the specified folder.
-	 * 
+	 *
 	 * @param String $folderId the Object ID of the folder
 	 * @param String $depth The number of levels of depth in the folder hierarchy from which to return results (-1 == ALL).
 	 * @returns Object[] A tree of the child objects for the specified folder.
@@ -459,7 +459,7 @@ class CMISService extends CMISRepositoryWrapper {
 
 	/**
 	 * Get the list of child objects contained in the specified folder.
-	 * 
+	 *
 	 * @param String $folderId the Object ID of the folder
 	 * @returns Object[] A list of the child objects for the specified folder.
 	 * @api CMIS-NavigationServices
@@ -476,7 +476,7 @@ class CMISService extends CMISRepositoryWrapper {
 
 	/**
 	 * Get the parent folder of the specified folder.
-	 * 
+	 *
 	 * @param String $folderId the Object ID of the folder
 	 * @returns Object the parent folder.
 	 * @api CMIS-NavigationServices
@@ -493,7 +493,7 @@ class CMISService extends CMISRepositoryWrapper {
 
 	/**
 	 * Get the parent folder(s) for the specified fileable object.
-	 * 
+	 *
 	 * @param String $objectId the Object ID of the Object
 	 * @returns Object[] list of the parent folder(s) of the specified object.
 	 * @api CMIS-NavigationServices
@@ -510,7 +510,7 @@ class CMISService extends CMISRepositoryWrapper {
 
 	/**
 	 * Get the list of documents that are checked out that the user has access to..
-	 * 
+	 *
 	 * @returns Object[] list of checked out documents.
 	 * @api CMIS-NavigationServices
 	 * @since CMIS-1.0
@@ -572,7 +572,7 @@ xmlns:cmisra="http://docs.oasisopen.org/ns/cmis/restatom/200908/">
   		//print_r($default_hash_values);
 		//print_r($options);
 
-        
+
 		$hash_values=array_merge($default_hash_values, $options);
 		$hash_values['q'] = $q;
 		$post_value = CMISRepositoryWrapper::processTemplate($query_template,$hash_values);
@@ -631,7 +631,7 @@ xmlns:cmisra="http://docs.oasis-open.org/ns/cmis/restatom/200908/">
 		return ob_get_clean();
 	}
 
-    
+
     /**
      * @internal
      */
@@ -647,7 +647,7 @@ xmlns:cmisra="http://docs.oasis-open.org/ns/cmis/restatom/200908/">
 		return ob_get_clean();
 	}
 
-    
+
     /**
      * @internal
      */
@@ -669,7 +669,7 @@ xmlns:cmisra="http://docs.oasis-open.org/ns/cmis/restatom/200908/">
 				"url" => "Url",
 				"xml" => "Xml",
 
-				
+
 			);
 		}
 		$propertyContent = "";
@@ -736,9 +736,7 @@ xmlns:cmisra="http://docs.oasis-open.org/ns/cmis/restatom/200908/">
 		ob_start();
 ?>
 		<cmisra:content>
-			<cmisra:mediatype>
-				{content_type}
-			</cmisra:mediatype>
+			<cmisra:mediatype>{content_type}</cmisra:mediatype>
 			<cmisra:base64>
 				{content}
 			</cmisra:base64>
@@ -800,7 +798,7 @@ xmlns:cmisra="http://docs.oasis-open.org/ns/cmis/restatom/200908/">
 	 * @since CMIS-1.0
 	 */
 	function getProperties($objectId, $options = array ()) {
-		// May need to set the options array default -- 
+		// May need to set the options array default --
 		return $this->getObject($objectId, $options);
 	}
 
@@ -821,7 +819,7 @@ xmlns:cmisra="http://docs.oasis-open.org/ns/cmis/restatom/200908/">
 
 	/**
 	 * Get the list of associated renditions for the specified object
-	 * 
+	 *
 	 * Only rendition attributes are returned, not rendition stream.
 	 * @param String $objectId Object Id
 	 * @param mixed[] $options Options
@@ -849,7 +847,7 @@ xmlns:cmisra="http://docs.oasis-open.org/ns/cmis/restatom/200908/">
 		// doRequest stores the last request information in this object
 		return $ret->body;
 	}
-	
+
 	/**
 	 * @internal
 	 */
@@ -909,7 +907,7 @@ xmlns:cmisra="http://docs.oasis-open.org/ns/cmis/restatom/200908/">
         $this->cacheObjectInfo($obj);
         return $obj;
     }
-    
+
     /**
      * @internal
      */
@@ -941,11 +939,11 @@ xmlns:cmisra="http://docs.oasis-open.org/ns/cmis/restatom/200908/">
 		if ($content) {
 			$hash_values["CONTENT"]=CMISService::getContentEntry($content,$content_type);
 		}
-		
+
 		if (!isset($hash_values['title'])) {
 			$hash_values['title'] = preg_replace("/[^A-Za-z0-9\s.&; ]/", '', htmlentities($objectName));
 		}
-		
+
 		if (!isset($hash_values['summary'])) {
 			$hash_values['summary'] = preg_replace("/[^A-Za-z0-9\s.&; ]/", '', htmlentities($objectName));
 		}
@@ -958,7 +956,7 @@ xmlns:cmisra="http://docs.oasis-open.org/ns/cmis/restatom/200908/">
 		$this->cacheObjectInfo($obj);
   		return $obj;
 	}
-    
+
     /**
      * @internal
      */
@@ -968,7 +966,7 @@ xmlns:cmisra="http://docs.oasis-open.org/ns/cmis/restatom/200908/">
 		if (isset($properties['cmis:objectTypeId'])) {
 			$objType = $properties['cmis:objectTypeId'];
 		} else if (isset($properties["cmis:objectId"])) {
-			$objType=$this->getObjectType($properties["cmis:objectId"]);			
+			$objType=$this->getObjectType($properties["cmis:objectId"]);
 		}
 		$myURL = CMISRepositoryWrapper :: getOpUrl($url, $options);
 		//DEBUG
@@ -977,9 +975,9 @@ xmlns:cmisra="http://docs.oasis-open.org/ns/cmis/restatom/200908/">
 		if (!isset ($entry_template)) {
 			$entry_template = CMISService :: getEntryTemplate();
 		}
-		print("DEBUG: postEntry: entry_template = " . $entry_template);		
+		print("DEBUG: postEntry: entry_template = " . $entry_template);
 		$properties_xml = $this->processPropertyTemplates($objType, $properties);
-		print("DEBUG: postEntry: properties_xml = " . $properties_xml);		
+		print("DEBUG: postEntry: properties_xml = " . $properties_xml);
 		if (is_array($options)) {
 			$hash_values = $options;
 		} else {
@@ -990,9 +988,9 @@ xmlns:cmisra="http://docs.oasis-open.org/ns/cmis/restatom/200908/">
 		if ($content) {
 			$hash_values["CONTENT"] = CMISService :: getContentEntry($content, $content_type);
 		}
-		print("DEBUG: postEntry: hash_values = " . print_r($hash_values,true));		
+		print("DEBUG: postEntry: hash_values = " . print_r($hash_values,true));
 		$post_value = CMISRepositoryWrapper :: processTemplate($entry_template, $hash_values);
-		print("DEBUG: postEntry: post_value = " . $post_value);		
+		print("DEBUG: postEntry: post_value = " . $post_value);
 		$ret = $this->doPost($myURL, $post_value, MIME_ATOM_XML_ENTRY);
 		$obj = $this->extractObject($ret->body);
 		$this->cacheObjectInfo($obj);
@@ -1018,7 +1016,7 @@ xmlns:cmisra="http://docs.oasis-open.org/ns/cmis/restatom/200908/">
 	function createPolicy() { // Not in first Release
 		throw new CmisNotImplementedException("createPolicy");
 	}
-	
+
 	function createItem() {
 		throw new CmisNotImplementedException("createItem");
 	}
@@ -1042,14 +1040,14 @@ xmlns:cmisra="http://docs.oasis-open.org/ns/cmis/restatom/200908/">
 		if (isset($this->_changeToken_cache[$objectId])) {
 			$properties['cmis:changeToken'] = $this->_changeToken_cache[$objectId];
 		}
-		
+
 		$properties_xml = $this->processPropertyTemplates($objectType, $hash_values);
 		if (is_array($options)) {
 			$hash_values = $options;
 		} else {
 			$hash_values = array ();
 		}
-		
+
 		$fixed_hash_values = array(
 			"PROPERTIES" => $properties_xml,
 			"SUMMARY" => CMISService::getSummaryTemplate(),
@@ -1057,7 +1055,7 @@ xmlns:cmisra="http://docs.oasis-open.org/ns/cmis/restatom/200908/">
 
 		// merge the fixes hash values first so that the processing order is correct
 		$hash_values = array_merge($fixed_hash_values, $hash_values);
-		
+
 		if (!isset($hash_values['title'])) {
 			$hash_values['title'] = $objectName;
 		}
@@ -1066,15 +1064,15 @@ xmlns:cmisra="http://docs.oasis-open.org/ns/cmis/restatom/200908/">
 		}
 		$put_value = CMISRepositoryWrapper :: processTemplate($entry_template, $hash_values);
 		$ret = $this->doPut($obj_url, $put_value, MIME_ATOM_XML_ENTRY);
-		
+
 		$obj = $this->extractObject($ret->body);
 		$this->cacheObjectInfo($obj);
 		return $obj;
 	}
-	
+
 	// New for 1.1
 	function bulkUpdateProperties() {
-		throw new CmisNotImplementedException("bulkUpdateProperties");		
+		throw new CmisNotImplementedException("bulkUpdateProperties");
 	}
 
 	function moveObject($objectId, $targetFolderId, $sourceFolderId, $options = array ()) { //yes
@@ -1170,8 +1168,8 @@ xmlns:cmisra="http://docs.oasis-open.org/ns/cmis/restatom/200908/">
 		return $this->getObject($objectId, $options); // Won't be able to handle major/minor distinction
 		// Need to add this -- "current-version"
 		/*
-		 * Headers: CMIS-filter, CMIS-returnVersion (enumReturnVersion) 
-		 * HTTP Arguments: filter, returnVersion 
+		 * Headers: CMIS-filter, CMIS-returnVersion (enumReturnVersion)
+		 * HTTP Arguments: filter, returnVersion
 		 * Enum returnVersion: This, Latest, Major
 		 */
 	}
