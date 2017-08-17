@@ -210,6 +210,7 @@ class APIAlfresco
     {
         $name = basename($file);
         $name = $this->extractSpecialCharacters($name);
+        $name = $this->getBlankSpacesBack($name);
         $openFile = fopen($file, 'r');
         $content = fread($openFile, filesize($file));
         //You need to activate fileinfo
