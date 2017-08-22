@@ -210,6 +210,7 @@ class APIAlfresco
     {
         $name = basename($file);
         $name = $this->extractSpecialCharacters($name);
+        $name = $this->getBlankSpacesBack($name);
         $openFile = fopen($file, 'r');
         $content = fread($openFile, filesize($file));
         //You need to activate fileinfo
@@ -482,7 +483,8 @@ class APIAlfresco
         $c = 0;
         while ($continue and $c < count($obj->objectList)) {
             if ($obj->objectList[$c]->properties['cmis:objectTypeId'] == 'cmis:folder') {
-                if ($obj->objectList[$c]->properties['cmis:name'] == $name) {
+                //repo folder names and $name parameter will be forced to be lower case (Alfresco folder names aren't case-sensitive)
+                if ( strtolower($obj->objectList[$c]->properties['cmis:name']) == strtolower($name) ) {
                     $continue = false;
                 }
             }
@@ -513,7 +515,8 @@ class APIAlfresco
         $c = 0;
         while ($continue and $c < count($obj->objectList)) {
             if ($obj->objectList[$c]->properties['cmis:objectTypeId'] == 'cmis:document') {
-                if ($obj->objectList[$c]->properties['cmis:name'] == $name) {
+                //repo file names and $name parameter will be forced to be lower case (Alfresco file names aren't case-sensitive)
+                if ( strtolower($obj->objectList[$c]->properties['cmis:name']) == strtolower($name) ) {
                     $continue = false;
                 }
             }
