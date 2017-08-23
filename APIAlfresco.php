@@ -82,7 +82,22 @@ class APIAlfresco
             $this->processException($e);
         }
     }
+    /**
+     * Gets noderef (id) of a file in a path.
+     *
+     * @example $path = "/mySite/documentLibrary/myFolder/document.pdf";
+     *
+     * @param string $path
+     * @param array  $options
+     */
+    public function getObjectId($path, array $options = array()){
 
+      $path = $this->extractSpecialCharacters($path);
+      $obj = $this->repository->getObjectByPath($path, $options);
+
+      return $obj->id;
+
+    }
     /**
      * Sets working folder.
      *
@@ -148,6 +163,7 @@ class APIAlfresco
             throw new Exception('Error:->The folder named '.$name.' already exists', 1);
         }
 
+        $name = $this->getBlankSpacesBack($name);
         return $this->repository->createFolder($this->parentFolder->id, $name);
     }
 
@@ -187,13 +203,15 @@ class APIAlfresco
      *
      * @return stdClass
      */
-    public function createFile($name, array $properties = array(), $content = null, $content_type = 'application/octet-stream', array $options = array())
-    {
+    public function createFile($name, array $properties = array(), $content = null, $content_type = 'application/octet-stream', array $options = array()){
+
+        $name = $this->extractSpecialCharacters($name);
         $exists = $this->FileExists($name);
         if ($exists) {
             throw new Exception('Error:->the file named '.$name.' already exists', 1);
         }
 
+        $name = $this->getBlankSpacesBack($name);
         return $this->repository->createDocument($this->parentFolder->id, $name, $properties, $content, $content_type, $options);
     }
 
@@ -484,7 +502,7 @@ class APIAlfresco
         while ($continue and $c < count($obj->objectList)) {
             if ($obj->objectList[$c]->properties['cmis:objectTypeId'] == 'cmis:folder') {
                 //repo folder names and $name parameter will be forced to be lower case (Alfresco folder names aren't case-sensitive)
-                if ( strtolower($obj->objectList[$c]->properties['cmis:name']) == strtolower($name) ) {
+                if (strtolower($obj->objectList[$c]->properties['cmis:name']) == strtolower($name)) {
                     $continue = false;
                 }
             }
@@ -508,6 +526,7 @@ class APIAlfresco
     {
         $name = $this->extractSpecialCharacters($name); //remove special chars (keep in mind spaces are now "%20")
         $name = $this->getBlankSpacesBack($name); //Ensure name is something like "My Folder" and not "My%20Folder"
+        $nameToLower = strtolower($name);
         $obj = $this->repository->getChildren($this->parentFolder->id);
         $name = str_replace('(', '', $name);
         $name = str_replace(')', '', $name);
@@ -516,7 +535,7 @@ class APIAlfresco
         while ($continue and $c < count($obj->objectList)) {
             if ($obj->objectList[$c]->properties['cmis:objectTypeId'] == 'cmis:document') {
                 //repo file names and $name parameter will be forced to be lower case (Alfresco file names aren't case-sensitive)
-                if ( strtolower($obj->objectList[$c]->properties['cmis:name']) == strtolower($name) ) {
+                if (strtolower($obj->objectList[$c]->properties['cmis:name']) ==  strtolower($name)) {
                     $continue = false;
                 }
             }
@@ -626,14 +645,15 @@ class APIAlfresco
         $word = str_replace(
             array('\\', '¨', 'º', '~',
                  '#', '@', '|', '!', '"',
-                 '$', '%', '&', '/',
+                 '$', '%', '&', /*'/',*/
                  '(', ')', '?', "'", '¡',
                  '¿', '[', '^', '`', ']',
                  '+', '}', '{', '¨', '´',
-                 '>', '< ', ';', ',', ':', ),
+                 '>', '< ', ';', ',', ':', '-', '·', '¬', '_'),
             '',
             $word
         );
+        $word = str_replace(' ', '%20', $word); //HTTP request accept blank spaces as '%20' symbol. Literal blank space is invalid
 
         return $word;
     }
